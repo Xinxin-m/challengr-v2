@@ -1,14 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AAA_ChallengeCard } from '../challenges/AAA_ChallengeCard';
-import { HomeChallengeCloud } from '../HomeChallengeCloud';
+import { HomeChallengeCloud } from '../StellarChallengeCloud';
 import { StellarHub } from '../StellarHub';
 import { CareerProgressInterface } from '../CareerProgressInterface';
 import { RealisticEarthMap } from '../RealisticEarthMap';
 import { ChallengeModal } from '../ChallengeModal';
+import { BettingPage } from '../BettingPage';
 import { 
   Sword, Map, Trophy, Home, Filter, Search, Grid, List, 
-  TrendingUp, Clock, Users, Star, Zap, Target, Crown
+  TrendingUp, Clock, Users, Star, Zap, Target, Crown, Coins
 } from 'lucide-react';
 import { Button } from '../ui/button';
 
@@ -24,6 +25,7 @@ interface ChallengeArenaProps {
   onChallengeInfo: (id: string) => void;
   onTokenEarn: (amount: number, type?: 'xp' | 'coins' | 'tokens') => void;
   onJobChange: (job: string) => void;
+  onPlaceBet: (challengeId: string, side: 'yes' | 'no', amount: number) => void;
 }
 
 export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
@@ -37,7 +39,8 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
   onChallengeSave,
   onChallengeInfo,
   onTokenEarn,
-  onJobChange
+  onJobChange,
+  onPlaceBet
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'trending' | 'recent' | 'difficulty' | 'rewards'>('trending');
@@ -106,12 +109,12 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
   // Render Arena View with AAA Challenge Cards
   const renderArenaView = () => (
     <div className="min-h-screen bg-page-gradient">
-      <div className="container mx-auto page-x pt-2 pb-8 space-y-6">
+      <div className="container mx-auto page-x pt-2 pb-8 space-y-6 px-4 md:px-6 lg:px-8">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 px-2 md:px-4"
         >
           <div className="relative bg-gradient-to-r from-slate-900/50 to-purple-900/50 backdrop-blur-xl border border-cyan-400/20 rounded-3xl p-8 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-purple-600/5" />
@@ -154,7 +157,7 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="flex flex-col lg:flex-row items-center gap-4 lg:justify-between mb-6 sm:mb-8"
+        className="flex flex-col lg:flex-row items-center gap-4 lg:justify-between mb-6 sm:mb-8 px-2 md:px-4"
       >
         <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full lg:w-auto">
           {/* Sort Controls */}
@@ -243,10 +246,10 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className={`grid w-full ${
+        className={`w-full ${
           viewMode === 'grid' 
-            ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 grid-gap justify-items-center' 
-            : 'grid-cols-1 grid-gap'
+            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 justify-items-center px-2 md:px-4 lg:px-6' 
+            : 'flex flex-col gap-6 px-2 md:px-4 lg:px-6'
         }`}
       >
         <AnimatePresence mode="popLayout">
@@ -261,6 +264,12 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
                 delay: index * 0.05,
                 layout: { duration: 0.3 }
               }}
+              className={`${
+                viewMode === 'grid' 
+                  ? 'w-full flex justify-center' 
+                  : 'w-full'
+              }`}
+              style={viewMode === 'grid' ? { width: '320px' } : {}}
             >
               <AAA_ChallengeCard
                 challenge={challenge}
@@ -282,7 +291,7 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="flex justify-center mt-12"
+        className="flex justify-center mt-12 px-2 md:px-4"
       >
         <Button
           variant="outline"
@@ -364,6 +373,20 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
         </motion.div>
       );
 
+    case 'betting':
+      return (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <BettingPage
+            userCoins={userProgress.coins || 0}
+            onPlaceBet={onPlaceBet}
+          />
+        </motion.div>
+      );
+
     case 'leaderboard':
       return (
         <motion.div
@@ -372,11 +395,11 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
           transition={{ duration: 0.3 }}
           className="min-h-screen bg-page-gradient"
         >
-          <div className="container mx-auto page-x pt-2 pb-8 space-y-6">
+          <div className="container mx-auto page-x pt-2 pb-8 space-y-6 px-4 md:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-8"
+              className="mb-8 px-2 md:px-4"
             >
               <div className="relative bg-gradient-to-r from-slate-900/50 to-purple-900/50 backdrop-blur-xl border border-cyan-400/20 rounded-3xl p-8 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-fuchsia-600/5 to-purple-500/5" />
@@ -418,7 +441,7 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-gap"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-2 md:px-4"
             >
               {/* Top 3 Leaders */}
               {[1, 2, 3].map((rank) => (
@@ -427,7 +450,7 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: rank * 0.1 }}
-                  className="bg-gradient-to-br from-slate-800/60 via-indigo-800/40 to-purple-800/60 backdrop-blur-sm border border-cyan-400/30 rounded-2xl p-6 hover:border-cyan-400/60 hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-500"
+                  className="bg-gradient-to-br from-slate-800/60 via-indigo-800/40 to-purple-800/60 backdrop-blur-sm border border-cyan-400/30 rounded-2xl p-6 hover:border-cyan-400/60 hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-500 mb-4"
                 >
                   <div className="flex items-center space-x-4">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
@@ -454,7 +477,7 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="mt-8 text-center"
+              className="mt-8 text-center px-2 md:px-4"
             >
               <Button
                 variant="outline"

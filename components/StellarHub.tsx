@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AAA_ChallengeCard } from './challenges/AAA_ChallengeCard';
-import { BettingChallengeCard } from './challenges/BettingChallengeCard';
-import { BattleChallengeCard } from './challenges/BattleChallengeCard';
+import { BettingCard } from './challenges/BettingCard';
+import { BattleCard } from './challenges/BattleCard';
 import { ProfileCard } from './ProfileCard';
 import { PostCard } from './PostCard';
 import { MOCK_CHALLENGES, MOCK_SINGLE_CHALLENGES, MOCK_DOUBLE_CHALLENGES } from '../data/mockChallenges';
@@ -111,6 +111,26 @@ export const StellarHub: React.FC<StellarHubProps> = ({
     } else {
       setUserScrollIndex(prev => Math.min(Math.ceil(recommendedUsers.length / 3) - 1, prev + 1));
     }
+  };
+
+  const handleBetYes = (id: string, amount: number) => {
+    console.log('Bet Yes placed:', id, amount);
+    // TODO: Implement betting logic
+  };
+
+  const handleBetNo = (id: string, amount: number) => {
+    console.log('Bet No placed:', id, amount);
+    // TODO: Implement betting logic
+  };
+
+  const handleBetBlue = (id: string, amount: number) => {
+    console.log('Bet Blue placed:', id, amount);
+    // TODO: Implement betting logic
+  };
+
+  const handleBetRed = (id: string, amount: number) => {
+    console.log('Bet Red placed:', id, amount);
+    // TODO: Implement betting logic
   };
 
   const toggleSection = (sectionName: string) => {
@@ -462,13 +482,13 @@ export const StellarHub: React.FC<StellarHubProps> = ({
                       layout: { duration: 0.3 }
                     }}
                     className="flex-shrink-0"
-                    style={{ width: '320px' }}
+                    style={{ width: '384px' }}
                   >
-                    <BettingChallengeCard
+                    <BettingCard
                       challenge={challenge}
                       userProgress={userProgress}
-                      onBetYes={(id, amount) => console.log('Bet Yes:', id, amount)}
-                      onBetNo={(id, amount) => console.log('Bet No:', id, amount)}
+                      onBetYes={handleBetYes}
+                      onBetNo={handleBetNo}
                       onSave={onChallengeSave}
                       onShare={(id) => console.log('Share:', id)}
                       onCardClick={onChallengeInfo}
@@ -552,13 +572,13 @@ export const StellarHub: React.FC<StellarHubProps> = ({
                       layout: { duration: 0.3 }
                     }}
                     className="flex-shrink-0"
-                    style={{ width: '320px' }}
+                    style={{ width: '384px' }}
                   >
-                    <BattleChallengeCard
+                    <BattleCard
                       challenge={challenge}
                       userProgress={userProgress}
-                      onBetBlue={(id, amount) => console.log('Bet Blue:', id, amount)}
-                      onBetRed={(id, amount) => console.log('Bet Red:', id, amount)}
+                      onBetBlue={handleBetBlue}
+                      onBetRed={handleBetRed}
                       onSave={onChallengeSave}
                       onShare={(id) => console.log('Share:', id)}
                       onCardClick={onChallengeInfo}
@@ -735,8 +755,6 @@ export const StellarHub: React.FC<StellarHubProps> = ({
               post={post}
               onClick={(id) => console.log('Post clicked:', id)}
               onUpvote={(id) => console.log('Upvote:', id)}
-              onComment={(id) => console.log('Comment:', id)}
-              onShare={(id) => console.log('Share:', id)}
               onSave={(id) => console.log('Save:', id)}
             />
           </div>

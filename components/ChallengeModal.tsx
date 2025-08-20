@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { X, Calendar, MapPin, Users, Coins, Trophy, ChevronDown, ChevronUp, Link, Heart, Bookmark, ThumbsUp, ThumbsDown, MessageSquare, Send, FileText, Zap, Crown, Check, Star, Play, Target } from "lucide-react";
-import { Challenge } from "../types/rpg-system";
+import { Challenge } from "../config/rpg-system";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
@@ -181,13 +181,13 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
   // Profile Modal for selected participant
   if (selectedParticipant) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 sm:p-8 lg:p-12 xl:p-16">
-        <div className="bg-card border border-border rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="fixed inset-0 bg-gradient-to-br from-pink-200/80 via-purple-200/80 to-blue-200/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-8 lg:p-12 xl:p-16">
+        <div className="bg-white/90 backdrop-blur-xl border border-pink-300/50 shadow-2xl shadow-pink-500/20 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header Section */}
-          <div className="relative p-6 pl-8 bg-gradient-to-br from-primary/20 via-primary/10 to-background rounded-t-2xl">
+          <div className="relative p-6 pl-8 bg-gradient-to-br from-pink-100/50 via-purple-100/50 to-blue-100/50 rounded-t-2xl">
             <button
               onClick={handleCloseParticipantModal}
-              className="absolute top-4 right-4 p-2 bg-black/30 rounded-full text-white hover:bg-black/50 transition-colors"
+              className="absolute top-4 right-4 p-2 bg-pink-300/50 rounded-full text-pink-700 hover:bg-pink-400/50 transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
@@ -219,23 +219,23 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
               {/* User Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-3 mb-2">
-                  <h2 className="text-2xl font-bold text-white">{selectedParticipant.name}</h2>
-                  <Badge variant="outline" className="bg-transparent rounded-full px-3 py-1">
+                  <h2 className="text-2xl font-bold text-gray-700">{selectedParticipant.name}</h2>
+                  <Badge variant="outline" className="bg-pink-100/50 border-pink-200/50 text-pink-700 rounded-full px-3 py-1">
                     Level {selectedParticipant.level}
                   </Badge>
                 </div>
                 
                 <div className="space-y-1 mb-4">
-                  <div className="text-sm text-white/80">@{selectedParticipant.name.toLowerCase().replace(' ', '')}</div>
-                  <div className="text-sm text-white/60">Challenge participant since {selectedParticipant.joinedDate}</div>
+                  <div className="text-sm text-gray-600">@{selectedParticipant.name.toLowerCase().replace(' ', '')}</div>
+                  <div className="text-sm text-gray-500">Challenge participant since {selectedParticipant.joinedDate}</div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Content */}
-          <div className="p-6">
-            <p className="text-foreground leading-relaxed">
+          <div className="p-6 bg-gradient-to-br from-pink-50/50 via-purple-50/50 to-blue-50/50 rounded-b-2xl">
+            <p className="text-gray-700 leading-relaxed">
               This participant has joined the challenge and placed a bet of {selectedParticipant.bet} coins.
             </p>
           </div>
@@ -245,8 +245,8 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 sm:p-8 lg:p-12 xl:p-16" onClick={onClose}>
-      <div ref={modalRef} className="bg-card border border-border rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-gradient-to-br from-pink-200/80 via-purple-200/80 to-blue-200/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-8 lg:p-12 xl:p-16" onClick={onClose}>
+      <div ref={modalRef} className="bg-white/90 backdrop-blur-xl border border-pink-300/50 shadow-2xl shadow-pink-500/20 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="relative">
           <img 
@@ -314,21 +314,21 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 bg-gradient-to-br from-pink-50/50 via-purple-50/50 to-blue-50/50 rounded-b-2xl">
           {/* Challenge Details Grid - Icons with colors */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
                 <MapPin className="h-5 w-5 text-blue-400" />
-                <span className="text-foreground text-sm font-medium">
+                <span className="text-gray-700 text-sm font-medium">
                   {challenge.location?.details || challenge.location?.type || 'Online'}
                 </span>
               </div>
               <div className="flex items-center space-x-2">
                 <Calendar className="h-5 w-5 text-green-400" />
-                <div className="text-foreground text-sm">
+                <div className="text-gray-700 text-sm">
                   <div>Duration: {Math.floor(challenge.timeLimit / 60)} hours</div>
-                  <div className="text-xs text-muted-foreground">Time limit to complete</div>
+                  <div className="text-xs text-gray-500">Time limit to complete</div>
                 </div>
               </div>
             </div>
@@ -336,22 +336,22 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
                 <Coins className="h-5 w-5 text-yellow-400" />
-                <span className="text-foreground text-sm font-medium">{challenge.entryCost} coins entry</span>
+                <span className="text-gray-700 text-sm font-medium">{challenge.entryCost} coins entry</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Zap className="h-5 w-5 text-purple-400" />
-                <span className="text-foreground text-sm font-medium">{challenge.rewards.xp} XP reward</span>
+                <span className="text-gray-700 text-sm font-medium">{challenge.rewards.xp} XP reward</span>
               </div>
             </div>
           </div>
 
           {/* Tags */}
           <div className="flex flex-wrap gap-2">
-            <Badge variant="outline" className="text-xs bg-transparent border-border/50 text-muted-foreground rounded-full px-3 py-1">
+            <Badge variant="outline" className="text-xs bg-pink-100/50 border-pink-200/50 text-pink-700 rounded-full px-3 py-1">
               {challenge.category.replace('-', ' ')}
             </Badge>
             {challenge.tags && challenge.tags.map((tag, index) => (
-              <Badge key={index} variant="outline" className="text-xs bg-transparent border-border/50 text-muted-foreground rounded-full px-3 py-1">
+              <Badge key={index} variant="outline" className="text-xs bg-purple-100/50 border-purple-200/50 text-purple-700 rounded-full px-3 py-1">
                 {tag}
               </Badge>
             ))}
@@ -359,13 +359,13 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
 
           {/* Section Toggle */}
           <div className="flex justify-center">
-            <div className="flex space-x-1 p-1 bg-muted/30 rounded-lg">
+            <div className="flex space-x-1 p-1 bg-gradient-to-r from-pink-100/50 via-purple-100/50 to-blue-100/50 rounded-lg border border-pink-200/30">
               <button
                 onClick={() => setActiveTab('description')}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                   activeTab === 'description' 
-                    ? 'bg-primary text-primary-foreground shadow-lg' 
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-gradient-to-r from-pink-400 to-purple-400 text-white shadow-lg' 
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'
                 }`}
               >
                 <FileText className="h-4 w-4" />
@@ -375,8 +375,8 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
                 onClick={() => setActiveTab('participants')}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                   activeTab === 'participants' 
-                    ? 'bg-primary text-primary-foreground shadow-lg' 
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-gradient-to-r from-pink-400 to-purple-400 text-white shadow-lg' 
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'
                 }`}
               >
                 <Users className="h-4 w-4" />
@@ -386,8 +386,8 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
                 onClick={() => setActiveTab('discussion')}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                   activeTab === 'discussion' 
-                    ? 'bg-primary text-primary-foreground shadow-lg' 
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-gradient-to-r from-pink-400 to-purple-400 text-white shadow-lg' 
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'
                 }`}
               >
                 <MessageSquare className="h-4 w-4" />
@@ -402,31 +402,31 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
               <div className="space-y-6">
                 {/* Description */}
                 <div>
-                  <p className="text-foreground text-sm leading-relaxed mb-4">{challenge.description}</p>
+                  <p className="text-gray-700 text-sm leading-relaxed mb-4">{challenge.description}</p>
                 </div>
 
                 {/* Challenge Type and Difficulty */}
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-foreground text-sm flex items-center space-x-2">
+                  <h4 className="font-semibold text-gray-700 text-sm flex items-center space-x-2">
                     <Target className="h-4 w-4" />
                     <span>Challenge Type:</span>
                   </h4>
-                  <p className="text-muted-foreground text-sm pl-6">
+                  <p className="text-gray-500 text-sm pl-6">
                     {challenge.type.charAt(0).toUpperCase() + challenge.type.slice(1)} • {challenge.difficulty.charAt(0).toUpperCase() + challenge.difficulty.slice(1)} Difficulty
                   </p>
                 </div>
 
                 {/* Reward system */}
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-foreground text-sm flex items-center space-x-2">
+                  <h4 className="font-semibold text-gray-700 text-sm flex items-center space-x-2">
                     <Star className="h-4 w-4" />
                     <span>Reward System:</span>
                   </h4>
-                  <div className="bg-gradient-to-r from-yellow-500/10 to-purple-500/10 rounded-lg p-4 border border-yellow-500/20">
-                    <p className="text-muted-foreground text-sm leading-relaxed">
+                  <div className="bg-gradient-to-r from-pink-100/50 to-purple-100/50 rounded-lg p-4 border border-pink-200/30">
+                    <p className="text-gray-600 text-sm leading-relaxed">
                       {getRewardText()}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-2">
+                    <p className="text-xs text-gray-500 mt-2">
                       Winners are determined by performance evaluation and community voting
                     </p>
                   </div>
@@ -434,21 +434,21 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
 
                 {/* Entry requirements */}
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-foreground text-sm flex items-center space-x-2">
+                  <h4 className="font-semibold text-gray-700 text-sm flex items-center space-x-2">
                     <Users className="h-4 w-4" />
                     <span>Entry Requirements:</span>
                   </h4>
-                  <div className="bg-gradient-to-r from-blue-500/10 to-green-500/10 rounded-lg p-4 border border-blue-500/20">
-                    <p className="text-muted-foreground text-sm">
+                  <div className="bg-gradient-to-r from-blue-100/50 to-purple-100/50 rounded-lg p-4 border border-blue-200/30">
+                    <p className="text-gray-600 text-sm">
                       Entry Fee: <span className="font-semibold text-yellow-600">{challenge.entryCost} coins</span>
                     </p>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-gray-600 text-sm">
                       Max Participants: {challenge.maxParticipants}
                     </p>
                     {challenge.requirements && (
                       <div className="mt-2">
-                        <p className="text-xs text-muted-foreground">Additional Requirements:</p>
-                        <ul className="text-xs text-muted-foreground ml-4 list-disc">
+                        <p className="text-xs text-gray-500">Additional Requirements:</p>
+                        <ul className="text-xs text-gray-500 ml-4 list-disc">
                           {challenge.requirements.map((req, index) => (
                             <li key={index}>{req}</li>
                           ))}
@@ -472,7 +472,7 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
                           className="w-12 h-12 rounded-full object-cover"
                         />
                         {participant.badges?.hasGoldCrown && (
-                          <div className="absolute -top-1 -right-1 bg-yellow-500 rounded-full p-1 border-2 border-background">
+                          <div className="absolute -top-1 -right-1 bg-yellow-500 rounded-full p-1 border-2 border-white">
                             <Crown className="h-3 w-3 text-yellow-900" />
                           </div>
                         )}
@@ -480,8 +480,8 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h5 className="font-semibold text-foreground">{participant.name}</h5>
-                            <p className="text-xs text-muted-foreground">Level {participant.level}</p>
+                            <h5 className="font-semibold text-gray-700">{participant.name}</h5>
+                            <p className="text-xs text-gray-500">Level {participant.level}</p>
                           </div>
                           <div className="text-right">
                             <div className="flex items-center space-x-2 text-xs">
@@ -494,7 +494,7 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
                                 <span>{participant.downvotes}</span>
                               </div>
                             </div>
-                            <div className="text-xs text-muted-foreground mt-1">
+                            <div className="text-xs text-gray-500 mt-1">
                               Bet: <span className="text-yellow-600 font-medium">{participant.bet}</span> coins
                             </div>
                           </div>
@@ -521,14 +521,14 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         placeholder="Share your thoughts about this challenge..."
-                        className="min-h-[80px] resize-none"
+                        className="min-h-[80px] resize-none border-pink-200/50 bg-white/70 text-gray-700 placeholder-gray-500"
                       />
                       <div className="flex justify-end">
                         <Button
                           size="sm"
                           onClick={handleCommentSubmit}
                           disabled={!newComment.trim()}
-                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                          className="bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white shadow-lg"
                         >
                           <Send className="h-4 w-4 mr-2" />
                           Post Comment
@@ -550,18 +550,18 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
                         />
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
-                            <span className="font-medium text-foreground text-sm">{comment.user.name}</span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="font-medium text-gray-700 text-sm">{comment.user.name}</span>
+                            <span className="text-xs text-gray-500">
                               {new Date(comment.createdDate).toLocaleDateString()}
                             </span>
                           </div>
-                          <p className="text-sm text-foreground leading-relaxed">{comment.content}</p>
+                          <p className="text-sm text-gray-600 leading-relaxed">{comment.content}</p>
                           <div className="flex items-center space-x-3 mt-2">
-                            <button className="flex items-center space-x-1 text-xs text-muted-foreground hover:text-primary transition-colors">
+                            <button className="flex items-center space-x-1 text-xs text-gray-500 hover:text-pink-500 transition-colors">
                               <Heart className="h-3 w-3" />
                               <span>{comment.likes}</span>
                             </button>
-                            <button className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                            <button className="text-xs text-gray-500 hover:text-pink-500 transition-colors">
                               Reply
                             </button>
                           </div>
@@ -575,8 +575,8 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
           </div>
 
           {/* Bet Amount Selector */}
-          <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 rounded-lg p-4 border border-green-500/20">
-            <h4 className="font-semibold text-foreground text-sm mb-3 flex items-center space-x-2">
+          <div className="bg-gradient-to-r from-pink-100/50 to-purple-100/50 rounded-lg p-4 border border-pink-200/30">
+            <h4 className="font-semibold text-gray-700 text-sm mb-3 flex items-center space-x-2">
               <Coins className="h-4 w-4" />
               <span>Place Your Bet:</span>
             </h4>
@@ -587,17 +587,17 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
                   min={challenge.entryCost}
                   value={betAmount}
                   onChange={(e) => setBetAmount(Number(e.target.value))}
-                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                  className="w-full px-3 py-2 border border-pink-200/50 rounded-lg bg-white/70 text-gray-700 placeholder-gray-500"
                   placeholder="Enter bet amount"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   Minimum: {challenge.entryCost} coins
                 </p>
               </div>
               <Button
                 onClick={handlePlaceBet}
                 disabled={betAmount < challenge.entryCost}
-                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+                className="bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white shadow-lg"
               >
                 <Target className="h-4 w-4 mr-2" />
                 Place Bet
@@ -609,7 +609,7 @@ export function ChallengeModal({ challenge, isOpen, onClose, onJoin, onBet, thum
           <div className="flex space-x-3">
             <Button 
               size="lg"
-              className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+              className="flex-1 bg-gradient-to-r from-blue-400 to-purple-400 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg"
               onClick={handleJoinChallenge}
             >
               <Play className="h-4 w-4 mr-2" />

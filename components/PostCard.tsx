@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { 
-  Heart, MessageCircle, Share2, Eye, Trophy, 
+  MessageCircle, Eye, Trophy, 
   ThumbsUp, Clock, User, MapPin, Bookmark
 } from 'lucide-react';
 import { Badge } from './ui/badge';
+import { PostModal } from './PostModal';
 
 interface PostCardProps {
   post: {
@@ -32,8 +33,6 @@ interface PostCardProps {
   };
   onClick?: (id: string) => void;
   onUpvote?: (id: string) => void;
-  onComment?: (id: string) => void;
-  onShare?: (id: string) => void;
   onSave?: (id: string) => void;
 }
 
@@ -41,31 +40,27 @@ export const PostCard: React.FC<PostCardProps> = ({
   post, 
   onClick, 
   onUpvote, 
-  onComment, 
-  onShare, 
   onSave 
 }) => {
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(post.upvotes);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleClick = () => {
-    onClick?.(post.id);
+    setIsModalOpen(true);
   };
 
   const handleUpvote = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setIsLiked(!isLiked);
+    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
     onUpvote?.(post.id);
-  };
-
-  const handleComment = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onComment?.(post.id);
-  };
-
-  const handleShare = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onShare?.(post.id);
   };
 
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setIsSaved(!isSaved);
     onSave?.(post.id);
   };
 
@@ -88,32 +83,25 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
   return (
-    <motion.div
-      className={`relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl border-2 rounded-3xl overflow-hidden shadow-2xl cursor-pointer group ${
-        post.isChallengeSubmission 
-          ? 'border-yellow-400/60 shadow-yellow-500/20' 
-          : 'border-cyan-400/30'
-      }`}
-      onClick={handleClick}
-      whileHover={{ 
-        scale: 1.01,
-        y: -2,
-        borderColor: post.isChallengeSubmission 
-          ? 'rgba(250, 204, 21, 0.8)' 
-          : 'rgba(34, 211, 238, 0.6)'
-      }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-    >
-      {/* Challenge Submission Badge */}
-      {post.isChallengeSubmission && (
-        <div className="absolute top-4 right-4 z-10">
-          <Badge className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white border-0 shadow-lg">
-            <Trophy className="w-3 h-3 mr-1" />
-            SUBMISSION
-          </Badge>
-        </div>
-      )}
+    <>
+      <motion.div
+        className={`relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl border-2 rounded-3xl overflow-hidden shadow-2xl cursor-pointer group ${
+          post.isChallengeSubmission 
+            ? 'border-yellow-400/60 shadow-yellow-500/20' 
+            : 'border-cyan-400/30'
+        }`}
+        onClick={handleClick}
+        whileHover={{ 
+          scale: 1.01,
+          y: -2,
+          borderColor: post.isChallengeSubmission 
+            ? 'rgba(250, 204, 21, 0.8)' 
+            : 'rgba(34, 211, 238, 0.6)'
+        }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+      >
+      {/* Challenge Submission Badge removed from post card */}
 
       {/* Main Content */}
       <div className="p-6">
@@ -134,16 +122,12 @@ export const PostCard: React.FC<PostCardProps> = ({
           <div className="flex-1">
             <div className="flex items-center space-x-2">
               <h4 className="text-white font-semibold">{post.author.name}</h4>
-              <Badge variant="secondary" className="bg-gradient-to-r from-cyan-500/20 to-purple-600/20 text-cyan-400 border-cyan-400/30 text-xs">
-                Lv.{post.author.level}
-              </Badge>
             </div>
             <div className="flex items-center space-x-2 text-white/60 text-sm">
               <Clock className="w-3 h-3" />
               <span>{formatTimeAgo(post.createdAt)}</span>
               {post.author.location && (
                 <>
-                  <span>•</span>
                   <MapPin className="w-3 h-3" />
                   <span>{post.author.location}</span>
                 </>
@@ -160,11 +144,6 @@ export const PostCard: React.FC<PostCardProps> = ({
               <span className="font-medium">Challenge Submission</span>
             </div>
             <div className="text-white font-semibold mt-1">{post.challengeName}</div>
-            {post.challengeCategory && (
-              <Badge variant="outline" className="mt-2 text-yellow-400 border-yellow-400/30">
-                {post.challengeCategory}
-              </Badge>
-            )}
           </div>
         )}
 
@@ -193,84 +172,52 @@ export const PostCard: React.FC<PostCardProps> = ({
           </div>
         )}
 
-        {/* Tags */}
-        {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {post.tags.slice(0, 4).map((tag, index) => (
-              <Badge 
-                key={index} 
-                variant="outline" 
-                className="text-cyan-400 border-cyan-400/30 text-xs"
-              >
-                #{tag}
-              </Badge>
-            ))}
-            {post.tags.length > 4 && (
-              <Badge variant="outline" className="text-white/60 border-white/20 text-xs">
-                +{post.tags.length - 4} more
-              </Badge>
-            )}
-          </div>
-        )}
+        {/* Tags removed for Following tiles */}
 
         {/* Engagement Stats and Actions */}
         <div className="flex items-center justify-between">
-          {/* Stats */}
+          {/* Stats: views, comments, likes (removed shares) */}
           <div className="flex items-center space-x-4 text-sm text-white/60">
             <div className="flex items-center space-x-1">
-              <ThumbsUp className="w-4 h-4" />
-              <span>{post.upvotes.toLocaleString()}</span>
+              <Eye className="w-4 h-4" />
+              <span>{post.views.toLocaleString()}</span>
             </div>
             <div className="flex items-center space-x-1">
               <MessageCircle className="w-4 h-4" />
               <span>{post.comments.toLocaleString()}</span>
             </div>
             <div className="flex items-center space-x-1">
-              <Share2 className="w-4 h-4" />
-              <span>{post.shares.toLocaleString()}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Eye className="w-4 h-4" />
-              <span>{post.views.toLocaleString()}</span>
+              <ThumbsUp className="w-4 h-4" />
+              <span>{likeCount.toLocaleString()}</span>
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons: like and save only */}
           <div className="flex items-center space-x-2">
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleUpvote}
-              className="p-2 bg-white/10 rounded-xl text-white/60 hover:bg-white/20 hover:text-white transition-all duration-200"
+              className={`p-2 rounded-xl transition-all duration-200 ${
+                isLiked 
+                  ? 'bg-red-500/20 text-red-400' 
+                  : 'bg-white/10 text-white/60 hover:bg-white/20 hover:text-white'
+              }`}
             >
-              <Heart className="w-4 h-4" />
-            </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={handleComment}
-              className="p-2 bg-white/10 rounded-xl text-white/60 hover:bg-white/20 hover:text-white transition-all duration-200"
-            >
-              <MessageCircle className="w-4 h-4" />
-            </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={handleShare}
-              className="p-2 bg-white/10 rounded-xl text-white/60 hover:bg-white/20 hover:text-white transition-all duration-200"
-            >
-              <Share2 className="w-4 h-4" />
+              <ThumbsUp className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
             </motion.button>
             
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleSave}
-              className="p-2 bg-white/10 rounded-xl text-white/60 hover:bg-white/20 hover:text-white transition-all duration-200"
+              className={`p-2 rounded-xl transition-all duration-200 ${
+                isSaved 
+                  ? 'bg-yellow-500/20 text-yellow-400' 
+                  : 'bg-white/10 text-white/60 hover:bg-white/20 hover:text-white'
+              }`}
             >
-              <Bookmark className="w-4 h-4" />
+              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
             </motion.button>
           </div>
         </div>
@@ -285,5 +232,20 @@ export const PostCard: React.FC<PostCardProps> = ({
         }`}
       />
     </motion.div>
+
+    {/* Post Modal */}
+    <PostModal
+      post={post}
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      onUpvote={onUpvote}
+      onSave={onSave}
+      isLiked={isLiked}
+      isSaved={isSaved}
+      likeCount={likeCount}
+      onLikeChange={setIsLiked}
+      onSaveChange={setIsSaved}
+    />
+  </>
   );
 };

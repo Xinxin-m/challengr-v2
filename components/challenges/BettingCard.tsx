@@ -2,29 +2,29 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { 
   Users, Clock, Coins, Star, Bookmark, Share2, 
-  Zap, Target, Sparkles, Calendar, TrendingUp, Shield, Sword, Trophy
+  Zap, Target, Sparkles, Calendar, TrendingUp, CheckCircle, XCircle
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Avatar } from '../ui/avatar';
-import { ChallengeDouble } from '../../types/rpg-system';
+import { ChallengeSingle } from '../../types/rpg-system';
 
-interface BattleChallengeCardProps {
-  challenge: ChallengeDouble;
+interface BettingCardProps {
+  challenge: ChallengeSingle;
   userProgress: any;
-  onBetBlue?: (id: string, amount: number) => void;
-  onBetRed?: (id: string, amount: number) => void;
+  onBetYes?: (id: string, amount: number) => void;
+  onBetNo?: (id: string, amount: number) => void;
   onSave?: (id: string) => void;
   onShare?: (id: string) => void;
   onCardClick?: (id: string) => void;
   variant?: 'default' | 'featured' | 'compact';
 }
 
-export const BattleChallengeCard: React.FC<BattleChallengeCardProps> = ({
+export const BettingCard: React.FC<BettingCardProps> = ({
   challenge,
   userProgress,
-  onBetBlue,
-  onBetRed,
+  onBetYes,
+  onBetNo,
   onSave,
   onShare,
   onCardClick,
@@ -37,19 +37,19 @@ export const BattleChallengeCard: React.FC<BattleChallengeCardProps> = ({
   // Variant configurations
   const variantConfig = {
     compact: {
-      container: 'w-80 h-96',
+      container: 'w-80 h-80',
       padding: 'p-4',
       titleSize: 'text-lg',
       imageHeight: 'h-32'
     },
     default: {
-      container: 'w-96 h-[540px]',
+      container: 'w-96 h-[440px]',
       padding: 'p-5',
       titleSize: 'text-xl',
       imageHeight: 'h-40'
     },
     featured: {
-      container: 'w-full h-[640px]',
+      container: 'w-full h-[520px]',
       padding: 'p-8',
       titleSize: 'text-2xl',
       imageHeight: 'h-48'
@@ -64,15 +64,15 @@ export const BattleChallengeCard: React.FC<BattleChallengeCardProps> = ({
     onSave?.(challenge.id);
   };
 
-  const handleBetBlue = () => {
+  const handleBetYes = () => {
     if (canAfford) {
-      onBetBlue?.(challenge.id, betAmount);
+      onBetYes?.(challenge.id, betAmount);
     }
   };
 
-  const handleBetRed = () => {
+  const handleBetNo = () => {
     if (canAfford) {
-      onBetRed?.(challenge.id, betAmount);
+      onBetNo?.(challenge.id, betAmount);
     }
   };
 
@@ -172,8 +172,23 @@ export const BattleChallengeCard: React.FC<BattleChallengeCardProps> = ({
             </div>
           </div>
 
+          {/* Creator Info */}
+          <div className="flex items-center space-x-3 mb-4 p-3 bg-white/5 rounded-xl">
+            <Avatar className="w-10 h-10 border-2 border-cyan-400/50">
+              <img
+                src={challenge.creator.avatar}
+                alt={challenge.creator.name}
+                className="w-full h-full object-cover"
+              />
+            </Avatar>
+            <div className="flex-1">
+              <div className="font-medium text-white">{challenge.creator.name}</div>
+              <div className="text-sm text-white/60">Level {challenge.creator.level} • Creator</div>
+            </div>
+          </div>
+
           {/* Title and Description */}
-          <div className="mb-4">
+          <div className="flex-1 mb-4">
             <h3 className={`${config.titleSize} font-black text-white mb-2 leading-tight`}>
               {challenge.title}
             </h3>
@@ -185,8 +200,8 @@ export const BattleChallengeCard: React.FC<BattleChallengeCardProps> = ({
           {/* Challenge Goal */}
           <div className="mb-4 p-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl border border-cyan-400/30">
             <h4 className="font-medium text-white mb-2 flex items-center">
-              <Trophy className="w-4 h-4 mr-2 text-cyan-400" />
-              Battle Goal
+              <Target className="w-4 h-4 mr-2 text-cyan-400" />
+              Challenge Goal
             </h4>
             <p className="text-white/80 text-sm">{challenge.challenge.goal}</p>
             <div className="flex items-center space-x-4 mt-2 text-xs text-white/60">
@@ -196,54 +211,22 @@ export const BattleChallengeCard: React.FC<BattleChallengeCardProps> = ({
               </div>
               <div className="flex items-center space-x-1">
                 <Users className="w-3 h-3" />
-                <span>{challenge.totalParticipants} betting</span>
+                <span>{challenge.participants} betting</span>
               </div>
             </div>
           </div>
 
-          {/* Battle Participants */}
-          <div className="mb-4 grid grid-cols-2 gap-4">
-            {/* Blue Player */}
-            <div className="text-center p-3 bg-blue-500/20 rounded-xl border border-blue-400/30">
-              <div className="w-16 h-16 mx-auto mb-2">
-                <Avatar className="w-full h-full border-2 border-blue-400">
-                  <img
-                    src={challenge.participants.blue.avatar}
-                    alt={challenge.participants.blue.name}
-                    className="w-full h-full object-cover"
-                  />
-                </Avatar>
-              </div>
-              <div className="font-bold text-blue-300 text-sm mb-1">{challenge.participants.blue.name}</div>
-              <div className="text-xs text-blue-200 mb-2">Level {challenge.participants.blue.level}</div>
-              <div className="text-lg font-bold text-blue-400">{challenge.participants.blue.odds}x</div>
-              <div className="text-xs text-blue-300">Odds</div>
-              <div className="text-xs text-white/60 mt-1">${challenge.participants.blue.totalBets}</div>
+          {/* Betting Odds */}
+          <div className="mb-4 grid grid-cols-2 gap-3">
+            <div className="text-center p-3 bg-green-500/20 rounded-xl border border-green-400/30">
+              <div className="text-lg font-bold text-green-400">{challenge.betting.yesOdds}x</div>
+              <div className="text-xs text-green-300">Yes Odds</div>
+              <div className="text-xs text-white/60 mt-1">${challenge.betting.yesBets}</div>
             </div>
-
-            {/* Red Player */}
             <div className="text-center p-3 bg-red-500/20 rounded-xl border border-red-400/30">
-              <div className="w-16 h-16 mx-auto mb-2">
-                <Avatar className="w-full h-full border-2 border-red-400">
-                  <img
-                    src={challenge.participants.red.avatar}
-                    alt={challenge.participants.red.name}
-                    className="w-full h-full object-cover"
-                  />
-                </Avatar>
-              </div>
-              <div className="font-bold text-red-300 text-sm mb-1">{challenge.participants.red.name}</div>
-              <div className="text-xs text-red-200 mb-2">Level {challenge.participants.red.level}</div>
-              <div className="text-lg font-bold text-red-400">{challenge.participants.red.odds}x</div>
-              <div className="text-xs text-red-300">Odds</div>
-              <div className="text-xs text-white/60 mt-1">${challenge.participants.red.totalBets}</div>
-            </div>
-          </div>
-
-          {/* VS Badge */}
-          <div className="text-center mb-4">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-red-500 rounded-full text-white font-bold text-lg shadow-lg">
-              VS
+              <div className="text-lg font-bold text-red-400">{challenge.betting.noOdds}x</div>
+              <div className="text-xs text-red-300">No Odds</div>
+              <div className="text-xs text-white/60 mt-1">${challenge.betting.noBets}</div>
             </div>
           </div>
 
@@ -266,20 +249,20 @@ export const BattleChallengeCard: React.FC<BattleChallengeCardProps> = ({
           {/* Betting Buttons */}
           <div className="flex space-x-3">
             <Button
-              onClick={handleBetBlue}
+              onClick={handleBetYes}
               disabled={!canAfford}
-              className="flex-1 h-10 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold border-0 shadow-lg"
+              className="flex-1 h-10 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold border-0 shadow-lg"
             >
-              <Shield className="w-4 h-4 mr-2" />
-              Bet Blue (${challenge.participants.blue.odds}x)
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Bet Yes (${challenge.betting.yesOdds}x)
             </Button>
             <Button
-              onClick={handleBetRed}
+              onClick={handleBetNo}
               disabled={!canAfford}
-              className="flex-1 h-10 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold border-0 shadow-lg"
+              className="flex-1 h-10 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-bold border-0 shadow-lg"
             >
-              <Sword className="w-4 h-4 mr-2" />
-              Bet Red (${challenge.participants.red.odds}x)
+              <XCircle className="w-4 h-4 mr-2" />
+              Bet No (${challenge.betting.noOdds}x)
             </Button>
           </div>
 
@@ -289,12 +272,6 @@ export const BattleChallengeCard: React.FC<BattleChallengeCardProps> = ({
               <Clock className="w-3 h-3 inline mr-1" />
               Betting ends in {formatTimeLeft(challenge.betting.endTime)}
             </div>
-            {challenge.eventTime && (
-              <div className="text-xs text-white/60 mt-1">
-                <Calendar className="w-3 h-3 inline mr-1" />
-                Battle starts {challenge.eventTime.toLocaleDateString()}
-              </div>
-            )}
           </div>
 
           {/* Insufficient Funds Warning */}

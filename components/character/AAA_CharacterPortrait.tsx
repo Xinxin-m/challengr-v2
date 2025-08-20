@@ -5,7 +5,7 @@ import {
   Zap, Target, Award, Medal, Trophy, Users,
   Eye, Heart, Brain, Flame, Wind, Mountain
 } from 'lucide-react';
-import { UserRPGProgress } from '../../types/rpg-system';
+import { UserRPGProgress } from '../../config/rpg-system';
 import { ParticleSystem, LevelUpEffect, AchievementEffect } from '../effects/ParticleSystem';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';

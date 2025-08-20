@@ -1,4 +1,4 @@
-import { Challenge, GeneratedChallenge, UserRPGProgress } from '../types/rpg-system';
+import { Challenge, GeneratedChallenge, UserRPGProgress } from '../config/rpg-system';
 
 interface UseAppHandlersProps {
   userProgress: UserRPGProgress;
@@ -144,6 +144,22 @@ export function useAppHandlers({
     console.log(`🚀 Starting legendary challenge: ${challengeId}`);
   };
 
+  const handlePlaceBet = (challengeId: string, side: 'yes' | 'no', amount: number) => {
+    if (userProgress.dailyCoins >= amount) {
+      setUserProgress(prev => ({
+        ...prev,
+        dailyCoins: prev.dailyCoins - amount
+      }));
+      
+      setShowCoinEffect(true);
+      setTimeout(() => setShowCoinEffect(false), 1500);
+      
+      console.log(`🎲 Placed bet: ${amount} coins on ${side} for challenge ${challengeId}`);
+    } else {
+      console.log(`❌ Insufficient coins for bet: ${amount} needed, ${userProgress.dailyCoins} available`);
+    }
+  };
+
   return {
     handleOnboardingComplete,
     handleOnboardingSkip,
@@ -156,5 +172,6 @@ export function useAppHandlers({
     handleJobChange,
     handleChallengeGenerated,
     handleChallengeStart,
+    handlePlaceBet,
   };
 }

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { ZoomIn, ZoomOut, RotateCcw, Compass, MapPin, Trophy } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, Compass, MapPin, Trophy, Users, Flag } from 'lucide-react';
 import { Button } from './ui/button';
 import { ChallengeCard } from './ChallengeCard';
 import { mockChallenges } from '../data/mockData';
@@ -12,11 +12,91 @@ interface EarthMapProps {
   filters: any;
 }
 
+// Challenge hub data with real-world coordinates
+const challengeHubs = [
+  {
+    id: 'hub-sf',
+    name: 'San Francisco Hub',
+    coordinates: { lat: 37.7749, lng: -122.4194 },
+    userCount: 2847,
+    activeChallenges: 23,
+    color: 'from-blue-400 to-cyan-500'
+  },
+  {
+    id: 'hub-nyc',
+    name: 'New York Hub',
+    coordinates: { lat: 40.7128, lng: -74.0060 },
+    userCount: 2156,
+    activeChallenges: 18,
+    color: 'from-purple-400 to-pink-500'
+  },
+  {
+    id: 'hub-la',
+    name: 'Los Angeles Hub',
+    coordinates: { lat: 34.0522, lng: -118.2437 },
+    userCount: 1893,
+    activeChallenges: 15,
+    color: 'from-orange-400 to-red-500'
+  },
+  {
+    id: 'hub-london',
+    name: 'London Hub',
+    coordinates: { lat: 51.5074, lng: -0.1278 },
+    userCount: 1654,
+    activeChallenges: 12,
+    color: 'from-green-400 to-emerald-500'
+  },
+  {
+    id: 'hub-tokyo',
+    name: 'Tokyo Hub',
+    coordinates: { lat: 35.6762, lng: 139.6503 },
+    userCount: 1423,
+    activeChallenges: 10,
+    color: 'from-pink-400 to-rose-500'
+  },
+  {
+    id: 'hub-berlin',
+    name: 'Berlin Hub',
+    coordinates: { lat: 52.5200, lng: 13.4050 },
+    userCount: 1234,
+    activeChallenges: 8,
+    color: 'from-yellow-400 to-amber-500'
+  },
+  {
+    id: 'hub-sydney',
+    name: 'Sydney Hub',
+    coordinates: { lat: -33.8688, lng: 151.2093 },
+    userCount: 987,
+    activeChallenges: 6,
+    color: 'from-indigo-400 to-blue-500'
+  }
+];
+
+// User's current position (mock data)
+const userPosition = {
+  coordinates: { lat: 37.7749, lng: -122.4194 }, // San Francisco
+  name: 'Your Location'
+};
+
+// Convert lat/lng to 3D sphere coordinates
+function latLngToSphere(lat: number, lng: number, radius: number) {
+  const phi = (90 - lat) * (Math.PI / 180);
+  const theta = (lng + 180) * (Math.PI / 180);
+  
+  const x = -(radius * Math.sin(phi) * Math.cos(theta));
+  const y = radius * Math.cos(phi);
+  const z = radius * Math.sin(phi) * Math.sin(theta);
+  
+  return { x, y, z };
+}
+
 export function EarthMap({ selectedChallenge, onChallengeSelect, searchQuery, filters }: EarthMapProps) {
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [hoveredHub, setHoveredHub] = useState<string | null>(null);
+  const [showUserTooltip, setShowUserTooltip] = useState(false);
   const earthRef = useRef<HTMLDivElement>(null);
 
   const filteredChallenges = mockChallenges.filter(challenge => {
@@ -69,6 +149,8 @@ export function EarthMap({ selectedChallenge, onChallengeSelect, searchQuery, fi
     setZoom(1);
     setRotation({ x: 0, y: 0 });
   };
+
+  const earthRadius = 192; // Half of w-96
 
   return (
     <div className="h-screen relative overflow-hidden bg-gradient-to-b from-indigo-900 via-purple-900 to-pink-900">
@@ -147,6 +229,135 @@ export function EarthMap({ selectedChallenge, onChallengeSelect, searchQuery, fi
             {/* Atmosphere Glow */}
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-200 to-transparent opacity-30 blur-sm"></div>
           </div>
+
+          {/* Challenge Hubs */}
+          {challengeHubs.map((hub, index) => {
+            const spherePos = latLngToSphere(hub.coordinates.lat, hub.coordinates.lng, earthRadius);
+            const size = Math.min(8 + (hub.userCount / 500), 16); // Size based on user count
+            
+            return (
+              <motion.div
+                key={hub.id}
+                className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
+                style={{
+                  left: `50%`,
+                  top: `50%`,
+                  transform: `translate(-50%, -50%) translate3d(${spherePos.x}px, ${spherePos.y}px, ${spherePos.z}px)`
+                }}
+                onMouseEnter={() => setHoveredHub(hub.id)}
+                onMouseLeave={() => setHoveredHub(null)}
+                whileHover={{ scale: 1.3 }}
+                whileTap={{ scale: 0.9 }}
+                animate={{
+                  y: [0, -5, 0],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{
+                  y: { duration: 3, repeat: Infinity, delay: index * 0.4 },
+                  scale: { duration: 2, repeat: Infinity, delay: index * 0.2 }
+                }}
+              >
+                {/* Hub Shadow */}
+                <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-6 h-3 bg-black/30 rounded-full blur-sm"></div>
+                
+                {/* Main Hub Dot */}
+                <div 
+                  className={`rounded-full bg-gradient-to-br ${hub.color} border-2 border-white shadow-xl flex items-center justify-center relative`}
+                  style={{ width: `${size}px`, height: `${size}px` }}
+                >
+                  <Users className="w-3 h-3 text-white" />
+                  
+                  {/* Pulsing Ring */}
+                  <motion.div
+                    className="absolute inset-0 rounded-full border-2 border-white"
+                    animate={{
+                      scale: [1, 2, 1],
+                      opacity: [1, 0, 1]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: index * 0.3
+                    }}
+                  />
+                  
+                  {/* User count badge */}
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center text-xs text-gray-800 border border-gray-300 font-bold">
+                    {Math.floor(hub.userCount / 1000)}
+                  </div>
+                </div>
+                
+                {/* Hub Tooltip */}
+                {hoveredHub === hub.id && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute top-12 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap z-30"
+                  >
+                    <div className="font-bold">{hub.name}</div>
+                    <div>{hub.userCount.toLocaleString()} users</div>
+                    <div>{hub.activeChallenges} active challenges</div>
+                  </motion.div>
+                )}
+              </motion.div>
+            );
+          })}
+
+          {/* User Position Flag */}
+          <motion.div
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-30"
+            style={{
+              left: `50%`,
+              top: `50%`,
+              transform: `translate(-50%, -50%) translate3d(${latLngToSphere(userPosition.coordinates.lat, userPosition.coordinates.lng, earthRadius).x}px, ${latLngToSphere(userPosition.coordinates.lat, userPosition.coordinates.lng, earthRadius).y}px, ${latLngToSphere(userPosition.coordinates.lat, userPosition.coordinates.lng, earthRadius).z}px)`
+            }}
+            onMouseEnter={() => setShowUserTooltip(true)}
+            onMouseLeave={() => setShowUserTooltip(false)}
+            whileHover={{ scale: 1.2 }}
+            animate={{
+              y: [0, -8, 0],
+              rotateY: [0, 360]
+            }}
+            transition={{
+              y: { duration: 2, repeat: Infinity },
+              rotateY: { duration: 8, repeat: Infinity, ease: "linear" }
+            }}
+          >
+            {/* Flag Shadow */}
+            <div className="absolute top-12 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-black/30 rounded-full blur-sm"></div>
+            
+            {/* Flag */}
+            <div className="w-8 h-8 bg-gradient-to-br from-red-400 to-red-600 rounded-full border-2 border-white shadow-xl flex items-center justify-center relative">
+              <Flag className="w-4 h-4 text-white" />
+              
+              {/* Flag Pole */}
+              <div className="absolute top-6 left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-white"></div>
+              
+              {/* Glowing Ring */}
+              <motion.div
+                className="absolute inset-0 rounded-full border-2 border-red-300"
+                animate={{
+                  scale: [1, 1.5, 1],
+                  opacity: [1, 0, 1]
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity
+                }}
+              />
+            </div>
+            
+            {/* User Tooltip */}
+            {showUserTooltip && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-16 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap z-40 font-bold"
+              >
+                You're here! 🎯
+              </motion.div>
+            )}
+          </motion.div>
 
           {/* Challenge Pins on Earth */}
           {filteredChallenges.map((challenge, index) => {
@@ -255,13 +466,16 @@ export function EarthMap({ selectedChallenge, onChallengeSelect, searchQuery, fi
       <div className="absolute top-6 left-6 bg-white/10 backdrop-blur-sm rounded-xl p-4 text-white border border-white/20">
         <h3 className="font-bold mb-2 flex items-center">
           <Trophy className="w-5 h-5 mr-2 text-yellow-400" />
-          Challenge Earth
+          Cosmic Atlas
         </h3>
         <p className="text-sm opacity-90 mb-2">
-          🌍 {filteredChallenges.length} challenges worldwide
+          🌍 {challengeHubs.length} challenge hubs worldwide
+        </p>
+        <p className="text-sm opacity-90 mb-2">
+          👥 {challengeHubs.reduce((sum, hub) => sum + hub.userCount, 0).toLocaleString()} total users
         </p>
         <p className="text-xs opacity-70">
-          Drag to rotate • Scroll to zoom
+          Drag to rotate • Scroll to zoom • Hover hubs for details
         </p>
       </div>
 

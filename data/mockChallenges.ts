@@ -1,4 +1,4 @@
-import { Challenge, ChallengeSingle, ChallengeDouble } from '../types/rpg-system';
+import { Challenge, ChallengeSingle, ChallengeDouble } from '../config/rpg-system';
 
 export const MOCK_CHALLENGES: Challenge[] = [
   {

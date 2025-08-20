@@ -1,4 +1,4 @@
-import { UserRPGProgress } from '../types/rpg-system';
+import { UserRPGProgress } from '../config/rpg-system';
 
 export const DEFAULT_USER_PROGRESS: UserRPGProgress = {
   userId: 'user123',

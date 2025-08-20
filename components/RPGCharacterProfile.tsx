@@ -15,8 +15,8 @@ import { Progress } from './ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Slider } from './ui/slider';
-import { CharacterAppearance, Membership } from '../types/social-system';
-import { UserRPGProgress } from '../types/rpg-system';
+import { CharacterAppearance, Membership } from '../config/social-system';
+import { UserRPGProgress } from '../config/rpg-system';
 import { getProfessionById } from '../data/professions';
 
 interface RPGCharacterProfileProps {

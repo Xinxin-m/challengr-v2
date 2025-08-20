@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Bell, User, Menu, Wallet, ChevronDown, Sparkles } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { MultiWalletConnect } from './MultiWalletConnect';
+import { MultiWalletConnect } from './WalletConnect';
 
 interface MobileHeaderProps {
   onShowProfile: () => void;

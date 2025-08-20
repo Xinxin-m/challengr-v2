@@ -1,4 +1,4 @@
-import { RPGClass, ClassCategory } from '../types/rpg-system';
+import { RPGClass, ClassCategory } from '../config/rpg-system';
 
 // Core profession definitions with proper RPG class structure
 export const PROFESSIONS: RPGClass[] = [

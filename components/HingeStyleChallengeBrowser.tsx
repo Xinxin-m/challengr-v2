@@ -9,7 +9,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Card } from './ui/card';
 import { Progress } from './ui/progress';
-import { Challenge, UserRPGProgress } from '../types/rpg-system';
+import { Challenge, UserRPGProgress } from '../config/rpg-system';
 import { getProfessionById } from '../data/professions';
 
 interface HingeStyleChallengeBrowserProps {

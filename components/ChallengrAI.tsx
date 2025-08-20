@@ -21,7 +21,7 @@ import {
   UserRPGProgress,
   ProfessionTier,
   AIJudgingConfig
-} from '../types/rpg-system';
+} from '../config/rpg-system';
 
 interface ChallengrAIProps {
   userProgress: UserRPGProgress;

@@ -14,7 +14,7 @@ import { Card } from './ui/card';
 import { Progress } from './ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
-import { UserRPGProgress, EquipmentItem, ProfessionTier } from '../types/rpg-system';
+import { UserRPGProgress, EquipmentItem, ProfessionTier } from '../config/rpg-system';
 import { getProfessionById, PROFESSIONS } from '../data/professions';
 
 interface CareerProgressInterfaceProps {

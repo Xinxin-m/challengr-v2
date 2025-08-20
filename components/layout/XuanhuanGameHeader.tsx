@@ -33,36 +33,7 @@ const CultivationBackground: React.FC = () => (
   </div>
 );
 
-const AcademyLogo: React.FC<{ 
-  size: 'sm' | 'lg'; 
-  onToggleSidebar: () => void;
-  sidebarCollapsed: boolean;
-}> = ({ size, onToggleSidebar, sidebarCollapsed }) => {
-  const sizeClass = size === 'sm' ? 'w-12 h-12' : 'w-12 h-12';
-  const iconSize = size === 'sm' ? 'w-7 h-7' : 'w-7 h-7';
-  const [isHovered, setIsHovered] = useState(false);
-  
-  return (
-    <motion.button
-      onClick={onToggleSidebar}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      whileHover={{ scale: 1.05, rotate: 5 }}
-      whileTap={{ scale: 0.95 }}
-      className={`${sizeClass} bg-gradient-to-br from-cyan-400 via-purple-500 to-amber-400 rounded-2xl flex items-center justify-center shadow-2xl relative overflow-hidden cursor-pointer`}
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent" />
-      <div className="relative z-10">
-        {isHovered ? (
-          <Menu className={`${iconSize} text-white`} />
-        ) : (
-          <Crown className={`${iconSize} text-white`} />
-        )}
-      </div>
-      <div className="absolute inset-0 animate-glow-pulse" />
-    </motion.button>
-  );
-};
+
 
 const CompactStats: React.FC<{ userProgress: any }> = ({ userProgress }) => (
   <div className="flex items-center space-x-4">
@@ -107,7 +78,7 @@ const SearchWithFilters: React.FC<{
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search for adventures..."
-          className="pl-12 pr-20 py-4 w-96 bg-slate-800/60 border border-cyan-400/40 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400 transition-all duration-300 text-white placeholder-white/70 backdrop-blur-sm"
+          className="pl-12 pr-20 py-2 w-96 bg-slate-800/60 border border-cyan-400/40 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400 transition-all duration-300 text-white placeholder-white/70 backdrop-blur-sm"
         />
         
         {/* Filters dropdown button */}
@@ -188,8 +159,8 @@ export const XuanhuanGameHeader: React.FC<XuanhuanGameHeaderProps> = ({
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down and past 100px - hide header
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        // Scrolling down and past 50px - hide header
         setIsVisible(false);
       } else if (currentScrollY < lastScrollY) {
         // Scrolling up - show header
@@ -206,21 +177,16 @@ export const XuanhuanGameHeader: React.FC<XuanhuanGameHeaderProps> = ({
   if (isMobile) {
     return (
       <motion.div 
-        initial={{ y: -80 }}
-        animate={{ y: isVisible ? 0 : -80 }}
+        initial={{ y: -64 }}
+        animate={{ y: isVisible ? 0 : -64 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="fixed top-0 left-0 right-0 z-40 h-20"
+        className="fixed top-0 left-0 right-0 z-40 h-16"
       >
         <CultivationBackground />
         
-        {/* Logo positioned at absolute left - above sidebar */}
-        <div className="absolute left-6 top-6 z-50">
-          <AcademyLogo size="sm" onToggleSidebar={onToggleSidebar} sidebarCollapsed={sidebarCollapsed} />
-        </div>
-        
-        <div className="relative h-full flex items-center justify-between pl-20 pr-6">
+        <div className="relative h-full flex items-center justify-between px-6">
           <div className="flex items-center space-x-4">
-            {/* Removed "Cultivation Academy" text */}
+            {/* Mobile content will be handled separately */}
           </div>
           
           <div className="flex items-center space-x-3">
@@ -249,24 +215,19 @@ export const XuanhuanGameHeader: React.FC<XuanhuanGameHeaderProps> = ({
     );
   }
 
-  // Desktop Header
+  // Desktop Header - now pushed by sidebar, no logo
   return (
     <motion.div 
-      initial={{ y: -80 }}
-      animate={{ y: isVisible ? 0 : -80 }}
+      initial={{ y: -64 }}
+      animate={{ y: isVisible ? 0 : -64 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed top-0 left-0 right-0 z-40 h-20"
+      className={`fixed top-0 z-30 h-16 transition-all duration-300 ease-in-out ${
+        sidebarCollapsed ? 'left-16 right-0' : 'left-80 right-0'
+      }`}
     >
       <CultivationBackground />
       
-      {/* Logo positioned at absolute left - above sidebar */}
-      <div className="absolute left-6 top-6 z-50">
-        <AcademyLogo size="lg" onToggleSidebar={onToggleSidebar} sidebarCollapsed={sidebarCollapsed} />
-      </div>
-      
-      <div className={`relative h-full flex items-center justify-between transition-all duration-300 ease-in-out ${
-        sidebarCollapsed ? 'ml-20 pl-8' : 'ml-80 pl-8'
-      }`}>
+      <div className="relative h-full flex items-center justify-between px-8">
         {/* Left side - Search */}
         <div className="flex items-center space-x-6">
           {(currentView === 'arena' || currentView === 'map' || currentView === 'home') && (

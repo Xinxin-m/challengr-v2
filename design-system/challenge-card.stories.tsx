@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { CinematicChallengeCard } from '../components/challenges/CinematicChallengeCard';
+import { AAA_ChallengeCard } from '../components/challenges/AAA_ChallengeCard';
 import { DEFAULT_USER_PROGRESS } from '../data/defaultUserProgress';
 import { MOCK_CHALLENGES } from '../data/mockChallenges';
-import { Challenge } from '../types/rpg-system';
+import { Challenge } from '../config/rpg-system';
 
-const meta: Meta<typeof CinematicChallengeCard> = {
+const meta: Meta<typeof AAA_ChallengeCard> = {
   title: 'Components/ChallengeCard',
-  component: CinematicChallengeCard,
+  component: AAA_ChallengeCard,
   parameters: {
     layout: 'centered',
     docs: {
@@ -38,7 +38,7 @@ const meta: Meta<typeof CinematicChallengeCard> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof CinematicChallengeCard>;
+type Story = StoryObj<typeof AAA_ChallengeCard>;
 
 // Base challenge data for stories
 const baseChallenge: Challenge = MOCK_CHALLENGES[0];
@@ -360,11 +360,11 @@ export const InteractionTest: Story = {
 export const GridLayout: Story = {
   render: () => (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(384px, 1fr))', gap: '24px', padding: '24px' }}>
-      <CinematicChallengeCard {...BeginnerDifficulty.args!} />
-      <CinematicChallengeCard {...IntermediateDifficulty.args!} />
-      <CinematicChallengeCard {...AdvancedDifficulty.args!} />
-      <CinematicChallengeCard {...ExpertDifficulty.args!} />
-      <CinematicChallengeCard {...LegendaryDifficulty.args!} />
+              <AAA_ChallengeCard {...BeginnerDifficulty.args!} />
+        <AAA_ChallengeCard {...IntermediateDifficulty.args!} />
+        <AAA_ChallengeCard {...AdvancedDifficulty.args!} />
+        <AAA_ChallengeCard {...ExpertDifficulty.args!} />
+        <AAA_ChallengeCard {...LegendaryDifficulty.args!} />
     </div>
   ),
   parameters: {

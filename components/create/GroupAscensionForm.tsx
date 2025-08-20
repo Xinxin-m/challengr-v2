@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Users, Target, Gavel, Calendar, Clock, Coins, Crown, Sparkles } from 'lucide-react';
+import { Users, Target, Gavel, Calendar, Clock, Coins, Crown, Sparkles, Save } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Slider } from '../ui/slider';
 import { Switch } from '../ui/switch';
+import { Button } from '../ui/button';
 
 interface GroupAscensionFormProps {
   formData: any;
@@ -33,6 +34,19 @@ export const GroupAscensionForm: React.FC<GroupAscensionFormProps> = ({
     });
   };
 
+  const handleSaveDraft = () => {
+    const draft = {
+      ...formData,
+      timestamp: new Date(),
+      type: 'group-ascension'
+    };
+    const drafts = JSON.parse(localStorage.getItem('challenge-drafts') || '[]');
+    drafts.push(draft);
+    localStorage.setItem('challenge-drafts', JSON.stringify(drafts));
+    // Show success feedback
+    alert('Draft saved successfully!');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -40,15 +54,48 @@ export const GroupAscensionForm: React.FC<GroupAscensionFormProps> = ({
       exit={{ opacity: 0, y: -20 }}
       className="space-y-6"
     >
+      {/* Save Button at Top */}
+      <div className="flex justify-end">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleSaveDraft}
+          className="flex items-center space-x-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg"
+        >
+          <Save className="w-4 h-4" />
+          <span>Save Draft</span>
+        </motion.button>
+      </div>
+
       {/* Header */}
-      <div className="flex items-center space-x-3 p-4 bg-purple-500/10 rounded-xl border border-purple-400/30">
-        <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
-          <Users className="w-5 h-5 text-white" />
+      <div className="flex items-center justify-between p-4 bg-purple-500/10 rounded-xl border border-purple-400/30">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
+            <Users className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-purple-300">Group Ascension Configuration</h3>
+            <p className="text-purple-200/70 text-sm">Unite with fellow cultivators for a shared quest</p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-xl font-bold text-purple-300">Group Ascension Configuration</h3>
-          <p className="text-purple-200/70 text-sm">Unite with fellow cultivators for a shared quest</p>
-        </div>
+      </div>
+
+      {/* Quest Lore */}
+      <div className="space-y-3">
+        <label className="block text-purple-300 font-semibold">
+          <Sparkles className="w-4 h-4 inline mr-2" />
+          Quest Lore
+        </label>
+        <Textarea
+          placeholder="Inscribe your quest's lore... Share the tale of your challenge, its purpose, and what awaits those who dare to accept it."
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          className="bg-slate-800/50 border-purple-400/30 text-white placeholder:text-slate-400 focus:border-purple-400 focus:ring-purple-400/20"
+          rows={3}
+        />
+        <p className="text-slate-400 text-sm">
+          Describe your quest's story and purpose. This will be visible to others who discover your challenge.
+        </p>
       </div>
 
       {/* Participant Limit */}
@@ -89,14 +136,14 @@ export const GroupAscensionForm: React.FC<GroupAscensionFormProps> = ({
           Completion Criteria
         </label>
         <Textarea
-          placeholder="Describe the detailed requirements for completing this group challenge... (e.g., All participants must complete their assigned tasks, Team must achieve a combined score of 1000 points, etc.)"
+          placeholder="Define what the group must accomplish together... (e.g., 'All members must complete a 30-day fitness challenge', 'Build a collaborative project with 1000+ lines of code', 'Organize a community event with 50+ attendees')"
           value={formData.completionCriteria}
           onChange={(e) => setFormData({ ...formData, completionCriteria: e.target.value })}
           className="bg-slate-800/50 border-purple-400/30 text-white placeholder:text-slate-400 focus:border-purple-400 focus:ring-purple-400/20"
-          rows={4}
+          rows={3}
         />
         <p className="text-slate-400 text-sm">
-          Clearly define what the group must accomplish together to complete the challenge successfully.
+          Define the collective goal that all participants must work towards together.
         </p>
       </div>
 
@@ -104,125 +151,79 @@ export const GroupAscensionForm: React.FC<GroupAscensionFormProps> = ({
       <div className="space-y-4">
         <label className="block text-purple-300 font-semibold">
           <Gavel className="w-4 h-4 inline mr-2" />
-          Judging Criteria
+          Judging Method
         </label>
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-3">
           {judgingOptions.map((option) => (
-            <motion.div
+            <motion.button
               key={option.id}
               whileHover={{ scale: 1.02 }}
-              className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
-                formData.judgingCriteria === option.id
-                  ? 'bg-purple-500/20 border-purple-400/50'
-                  : 'bg-slate-800/30 border-purple-400/20 hover:bg-purple-500/10'
-              }`}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setFormData({ ...formData, judgingCriteria: option.id })}
+              className={`p-4 rounded-xl border-2 transition-all text-left ${
+                formData.judgingCriteria === option.id
+                  ? 'border-purple-500 bg-purple-500/20'
+                  : 'border-purple-400/30 bg-slate-800/30 hover:border-purple-400/50'
+              }`}
             >
-              <div className="flex items-center space-x-3">
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  formData.judgingCriteria === option.id
-                    ? 'border-purple-400 bg-purple-400'
-                    : 'border-purple-400/50'
-                }`}>
-                  {formData.judgingCriteria === option.id && (
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-purple-300 font-semibold">{option.label}</h4>
+                {formData.judgingCriteria === option.id && (
+                  <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
                     <div className="w-2 h-2 bg-white rounded-full" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="text-white font-medium">{option.label}</div>
-                  <div className="text-slate-400 text-sm">{option.description}</div>
-                </div>
+                  </div>
+                )}
               </div>
-            </motion.div>
+              <p className="text-slate-400 text-sm">{option.description}</p>
+            </motion.button>
           ))}
         </div>
-        <p className="text-slate-400 text-sm">
-          Choose how completion of your group challenge will be determined and judged.
-        </p>
       </div>
 
-      {/* Duration Settings */}
+      {/* Time Settings */}
       <div className="space-y-4">
         <label className="block text-purple-300 font-semibold">
-          <Calendar className="w-4 h-4 inline mr-2" />
-          Challenge Duration
+          <Clock className="w-4 h-4 inline mr-2" />
+          Time Allowed
         </label>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Start Time */}
-          <div className="space-y-2">
-            <label className="block text-purple-300/80 text-sm">Start Time</label>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="block text-purple-300/80 text-sm mb-2">Days</label>
             <Input
-              type="datetime-local"
-              value={formData.startTime}
-              onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+              type="number"
+              min="0"
+              max="365"
+              value={formData.timeAllowed.days}
+              onChange={(e) => updateTimeAllowed('days', parseInt(e.target.value) || 0)}
               className="bg-slate-800/50 border-purple-400/30 text-white focus:border-purple-400 focus:ring-purple-400/20"
             />
           </div>
-
-          {/* End Time */}
-          <div className="space-y-2">
-            <label className="block text-purple-300/80 text-sm">End Time</label>
+          <div>
+            <label className="block text-purple-300/80 text-sm mb-2">Hours</label>
             <Input
-              type="datetime-local"
-              value={formData.endTime}
-              onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+              type="number"
+              min="0"
+              max="23"
+              value={formData.timeAllowed.hours}
+              onChange={(e) => updateTimeAllowed('hours', parseInt(e.target.value) || 0)}
+              className="bg-slate-800/50 border-purple-400/30 text-white focus:border-purple-400 focus:ring-purple-400/20"
+            />
+          </div>
+          <div>
+            <label className="block text-purple-300/80 text-sm mb-2">Minutes</label>
+            <Input
+              type="number"
+              min="0"
+              max="59"
+              value={formData.timeAllowed.minutes}
+              onChange={(e) => updateTimeAllowed('minutes', parseInt(e.target.value) || 0)}
               className="bg-slate-800/50 border-purple-400/30 text-white focus:border-purple-400 focus:ring-purple-400/20"
             />
           </div>
         </div>
-
-        {/* Time Allowed */}
-        <div className="p-4 bg-slate-800/30 rounded-xl border border-purple-400/20">
-          <label className="block text-purple-300/80 text-sm mb-3">Time Allowed Per Participant</label>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="block text-purple-300/60 text-xs">Days</label>
-              <div className="flex items-center space-x-2">
-                <Slider
-                  value={[formData.timeAllowed.days]}
-                  onValueChange={(value) => updateTimeAllowed('days', value[0])}
-                  max={30}
-                  min={0}
-                  step={1}
-                  className="flex-1"
-                />
-                <span className="text-purple-300 font-bold text-sm w-8">{formData.timeAllowed.days}</span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-purple-300/60 text-xs">Hours</label>
-              <div className="flex items-center space-x-2">
-                <Slider
-                  value={[formData.timeAllowed.hours]}
-                  onValueChange={(value) => updateTimeAllowed('hours', value[0])}
-                  max={23}
-                  min={0}
-                  step={1}
-                  className="flex-1"
-                />
-                <span className="text-purple-300 font-bold text-sm w-8">{formData.timeAllowed.hours}</span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-purple-300/60 text-xs">Minutes</label>
-              <div className="flex items-center space-x-2">
-                <Slider
-                  value={[formData.timeAllowed.minutes]}
-                  onValueChange={(value) => updateTimeAllowed('minutes', value[0])}
-                  max={59}
-                  min={0}
-                  step={5}
-                  className="flex-1"
-                />
-                <span className="text-purple-300 font-bold text-sm w-8">{formData.timeAllowed.minutes}</span>
-              </div>
-            </div>
-          </div>
-          <p className="text-slate-400 text-xs mt-2">
-            Set the time limit for each participant to complete their part of the challenge.
-          </p>
-        </div>
+        <p className="text-slate-400 text-sm">
+          Set the time limit for completing the group challenge. All participants must finish within this timeframe.
+        </p>
       </div>
 
       {/* Entry Fee */}
@@ -234,7 +235,7 @@ export const GroupAscensionForm: React.FC<GroupAscensionFormProps> = ({
         <div className="p-4 bg-slate-800/30 rounded-xl border border-purple-400/20">
           <div className="space-y-4">
             <div>
-              <label className="block text-purple-300/80 text-sm mb-2">Coins Required to Join</label>
+              <label className="block text-purple-300/80 text-sm mb-2">Coins Required (0-1000)</label>
               <div className="flex items-center space-x-4">
                 <Slider
                   value={[formData.entryFee]}
@@ -244,13 +245,13 @@ export const GroupAscensionForm: React.FC<GroupAscensionFormProps> = ({
                   step={10}
                   className="flex-1"
                 />
-                <div className="w-20 text-center">
+                <div className="w-16 text-center">
                   <span className="text-purple-300 font-bold">{formData.entryFee}</span>
                 </div>
               </div>
             </div>
             <p className="text-slate-400 text-sm">
-              Set an entry fee for participants. Higher fees can attract more serious participants and increase the reward pool.
+              Set an entry fee to join the challenge. Higher fees can attract more serious participants and create larger reward pools.
             </p>
           </div>
         </div>
@@ -263,40 +264,26 @@ export const GroupAscensionForm: React.FC<GroupAscensionFormProps> = ({
           animate={{ opacity: 1, scale: 1 }}
           className="p-4 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 rounded-xl border border-purple-400/30"
         >
-          <h4 className="text-purple-300 font-semibold mb-3">Group Quest Preview</h4>
-          <div className="space-y-3 text-sm">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-slate-800/50 rounded-lg">
-                <p className="text-white"><span className="text-purple-300">Max Participants:</span> {formData.participantLimit}</p>
-              </div>
-              <div className="p-3 bg-slate-800/50 rounded-lg">
-                <p className="text-white"><span className="text-purple-300">Entry Fee:</span> {formData.entryFee} coins</p>
-              </div>
-            </div>
-            <div className="p-3 bg-slate-800/50 rounded-lg">
-              <p className="text-white"><span className="text-purple-300">Judging:</span> {judgingOptions.find(o => o.id === formData.judgingCriteria)?.label}</p>
-            </div>
-            <div className="p-3 bg-slate-800/50 rounded-lg">
-              <p className="text-white"><span className="text-purple-300">Time Limit:</span> {formData.timeAllowed.days}d {formData.timeAllowed.hours}h {formData.timeAllowed.minutes}m</p>
-            </div>
-            <div className="p-3 bg-purple-500/20 rounded-lg border border-purple-400/30">
-              <p className="text-purple-200"><span className="text-purple-300">Completion:</span> {formData.completionCriteria}</p>
-            </div>
+          <h4 className="text-purple-300 font-semibold mb-2">Group Quest Preview</h4>
+          <div className="space-y-2 text-sm">
+            <p className="text-white">
+              <span className="text-purple-300">Participants:</span> Up to {formData.participantLimit} cultivators
+            </p>
+            <p className="text-white">
+              <span className="text-purple-300">Goal:</span> {formData.completionCriteria}
+            </p>
+            <p className="text-white">
+              <span className="text-purple-300">Time Limit:</span> {formData.timeAllowed.days}d {formData.timeAllowed.hours}h {formData.timeAllowed.minutes}m
+            </p>
+            <p className="text-white">
+              <span className="text-purple-300">Entry Fee:</span> {formData.entryFee} coins
+            </p>
+            <p className="text-white">
+              <span className="text-purple-300">Judging:</span> {judgingOptions.find(opt => opt.id === formData.judgingCriteria)?.label}
+            </p>
           </div>
         </motion.div>
       )}
-
-      {/* Collaboration Info */}
-      <div className="p-4 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-xl border border-cyan-400/30">
-        <div className="flex items-center space-x-2 mb-2">
-          <Crown className="w-5 h-5 text-cyan-400" />
-          <h4 className="text-cyan-300 font-semibold">Collaboration Benefits</h4>
-        </div>
-        <p className="text-cyan-200/80 text-sm">
-          Group challenges offer shared rewards, collective wisdom, and the power of teamwork. 
-          Success depends on everyone's contribution and cooperation!
-        </p>
-      </div>
     </motion.div>
   );
 };

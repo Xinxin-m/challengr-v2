@@ -12,7 +12,7 @@ import { Badge } from './ui/badge';
 import { Card } from './ui/card';
 import { Avatar } from './ui/avatar';
 import { Textarea } from './ui/textarea';
-import { CommunityPost, RPGUser, UserRPGProgress } from '../types/social-system';
+import { CommunityPost, RPGUser, UserRPGProgress } from '../config/social-system';
 import { getProfessionById } from '../data/professions';
 
 interface CommunityHomeFeedProps {

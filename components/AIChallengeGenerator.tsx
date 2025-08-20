@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Send, Sparkles, Zap, Brain, MessageSquare, Copy, 
   Check, RefreshCw, Download, Share2, Settings,
-  ChevronDown, ChevronUp, Lightbulb, Target, Clock
+  ChevronDown, ChevronUp, Lightbulb, Target, Clock,
+  ArrowLeft, Save
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -48,7 +49,89 @@ interface AIChallengeGeneratorProps {
   membershipTier: 'free' | 'basic' | 'premium' | 'ultimate';
   generationsLeft: number;
   onGenerationUsed: () => void;
+  onBackToTypeSelection?: () => void;
 }
+
+// Confirmation Dialog Component
+interface ConfirmationDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (action: 'discard' | 'save') => void;
+  title: string;
+  message: string;
+}
+
+const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[60] p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.95, opacity: 0, y: 20 }}
+          transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          className="w-full max-w-md min-h-[200px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/30 overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 0.5, repeat: 2 }}
+                >
+                  ⚠️
+                </motion.div>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">{message}</p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3 mt-6">
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="flex-1 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => onConfirm('save')}
+                className="flex-1 border-green-500 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save & Exit
+              </Button>
+              <Button
+                onClick={() => onConfirm('discard')}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white"
+              >
+                Discard & Exit
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
 
 export function AIChallengeGenerator({
   isOpen,
@@ -57,7 +140,8 @@ export function AIChallengeGenerator({
   userLevel,
   membershipTier,
   generationsLeft,
-  onGenerationUsed
+  onGenerationUsed,
+  onBackToTypeSelection
 }: AIChallengeGeneratorProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -65,6 +149,8 @@ export function AIChallengeGenerator({
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationAction, setConfirmationAction] = useState<'logo' | 'close' | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Predefined challenge templates
@@ -300,6 +386,54 @@ The challenge has been added to your workspace! You can now customize it further
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleBackOrClose = (action: 'logo' | 'close') => {
+    // Always show confirmation if there's any content or progress
+    if (messages.length > 1 || input.trim()) {
+      setConfirmationAction(action);
+      setShowConfirmation(true);
+    } else {
+      if (action === 'logo' && onBackToTypeSelection) {
+        onBackToTypeSelection();
+      } else if (action === 'logo') {
+        // If no callback provided, just close the modal
+        onClose();
+      } else {
+        onClose();
+      }
+    }
+  };
+
+  const handleConfirmation = (action: 'discard' | 'save') => {
+    if (action === 'save') {
+      // Save current state as draft
+      const draft = {
+        messages,
+        input,
+        selectedTemplate,
+        timestamp: new Date(),
+        type: 'ai-challenge-generator',
+        title: `AI Chat ${new Date().toLocaleDateString()}`,
+        description: input || 'Unsaved AI conversation'
+      };
+      // Store in localStorage for now (in a real app, this would go to a database)
+      const drafts = JSON.parse(localStorage.getItem('challenge-drafts') || '[]');
+      drafts.push(draft);
+      localStorage.setItem('challenge-drafts', JSON.stringify(drafts));
+      
+      // Show success feedback
+      alert('AI conversation saved as draft!');
+    }
+    
+    setShowConfirmation(false);
+    setConfirmationAction(null);
+    
+    if (confirmationAction === 'logo' && onBackToTypeSelection) {
+      onBackToTypeSelection();
+    } else {
+      onClose();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -324,18 +458,36 @@ The challenge has been added to your workspace! You can now customize it further
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <motion.div
-                  animate={{ 
-                    rotate: [0, 360],
-                    scale: [1, 1.1, 1]
-                  }}
-                  transition={{ 
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleBackOrClose('logo')}
+                  className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg cursor-pointer transition-all duration-200 hover:from-purple-600 hover:to-pink-600 relative overflow-hidden"
+                  title="Go back to challenge type selection"
                 >
-                  <Brain className="w-6 h-6 text-white" />
+                  {/* Default brain icon */}
+                  <motion.div
+                    animate={{ 
+                      rotate: [0, 360],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ 
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    whileHover={{ opacity: 0 }}
+                    className="transition-opacity duration-200"
+                  >
+                    <Brain className="w-6 h-6 text-white" />
+                  </motion.div>
+                  {/* Back arrow overlay on hover */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                    className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center transition-opacity duration-200"
+                  >
+                    <ArrowLeft className="w-6 h-6 text-white" />
+                  </motion.div>
                 </motion.div>
                 <div>
                   <h2 className="text-2xl text-gray-900 dark:text-white">AI Challenge Generator</h2>
@@ -348,9 +500,41 @@ The challenge has been added to your workspace! You can now customize it further
                   <Zap className="w-3 h-3 mr-1" />
                   {generationsLeft} left
                 </Badge>
-                <Button variant="ghost" onClick={onClose} className="rounded-xl">
+                
+                {/* Save Button */}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    const draft = {
+                      messages,
+                      input,
+                      selectedTemplate,
+                      timestamp: new Date(),
+                      type: 'ai-challenge-generator',
+                      title: `AI Chat ${new Date().toLocaleDateString()}`,
+                      description: input || 'AI conversation draft'
+                    };
+                    const drafts = JSON.parse(localStorage.getItem('challenge-drafts') || '[]');
+                    drafts.push(draft);
+                    localStorage.setItem('challenge-drafts', JSON.stringify(drafts));
+                    alert('AI conversation saved as draft!');
+                  }}
+                  className="p-2 rounded-xl text-green-300 hover:text-green-200 transition-all duration-200 border border-green-400/30 bg-green-500/20 hover:bg-green-500/30"
+                  title="Save current AI conversation"
+                >
+                  <Save className="w-4 h-4" />
+                </motion.button>
+                
+                <motion.button 
+                  whileHover={{ scale: 1.1, rotate: 90 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => handleBackOrClose('close')} 
+                  className="w-10 h-10 bg-red-500/20 hover:bg-red-500/30 rounded-xl text-red-400 hover:text-red-300 transition-all duration-200 border border-red-400/30 flex items-center justify-center"
+                  title="Close AI Challenge Generator"
+                >
                   ✕
-                </Button>
+                </motion.button>
               </div>
             </div>
 
@@ -373,12 +557,12 @@ The challenge has been added to your workspace! You can now customize it further
             </div>
           </div>
 
-          {/* Main Content */}
+          {/* Main Content - Made scrollable */}
           <div className="flex-1 flex overflow-hidden">
             {/* Chat Area */}
-            <div className="flex-1 flex flex-col">
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 flex flex-col min-h-0">
+              {/* Messages - Made scrollable */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-purple-500/20 scrollbar-track-transparent">
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}
@@ -603,6 +787,125 @@ The challenge has been added to your workspace! You can now customize it further
           </div>
         </motion.div>
       </motion.div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={showConfirmation}
+        onClose={() => setShowConfirmation(false)}
+        onConfirm={handleConfirmation}
+        title="Unsaved Changes"
+        message="You have unsaved changes. Would you like to save your progress before leaving?"
+      />
     </AnimatePresence>
   );
 }
+
+// Demo component for testing
+export const AIChallengeGeneratorDemo: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [step, setStep] = useState<'type' | 'ai'>('type');
+
+  return (
+    <div className="p-8 bg-gray-900 min-h-screen">
+      <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-white mb-4">AI Challenge Generator Demo</h1>
+          <p className="text-gray-300 text-lg">Testing the new features: confirmation dialogs, scrollable forms, and save functionality</p>
+        </div>
+        
+        {step === 'type' ? (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-white mb-4">Choose Challenge Type</h2>
+              <p className="text-gray-400">Select a challenge type to proceed to the AI generator</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setStep('ai')}
+                className="p-6 border-2 border-emerald-500/30 rounded-xl hover:bg-emerald-500/10 transition-all duration-200 text-left"
+              >
+                <div className="text-3xl mb-3">🛡️</div>
+                <h3 className="text-xl font-bold text-emerald-300 mb-2">Solo Quest</h3>
+                <p className="text-gray-400">Challenge yourself to achieve a personal goal</p>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setStep('ai')}
+                className="p-6 border-2 border-red-500/30 rounded-xl hover:bg-red-500/10 transition-all duration-200 text-left"
+              >
+                <div className="text-3xl mb-3">⚔️</div>
+                <h3 className="text-xl font-bold text-red-300 mb-2">Dual Clash</h3>
+                <p className="text-gray-400">Duel another player and let others bet on the winner</p>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setStep('ai')}
+                className="p-6 border-2 border-purple-500/30 rounded-xl hover:bg-purple-500/10 transition-all duration-200 text-left"
+              >
+                <div className="text-3xl mb-3">👥</div>
+                <h3 className="text-xl font-bold text-purple-300 mb-2">Group Ascension</h3>
+                <p className="text-gray-400">Team up with friends for a shared quest</p>
+              </motion.button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="text-center">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setStep('type')}
+                className="flex items-center space-x-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold transition-all duration-200 mx-auto"
+              >
+                <span>←</span>
+                <span>Back to Type Selection</span>
+              </motion.button>
+            </div>
+            
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-white mb-4">AI Challenge Generator</h2>
+              <p className="text-gray-400 mb-6">Test the new features:</p>
+              <ul className="text-gray-300 text-left max-w-md mx-auto space-y-2">
+                <li>• Hover over the brain icon to see it become a back arrow</li>
+                <li>• Try clicking the back arrow or close button with content</li>
+                <li>• Test the confirmation dialog with different options</li>
+                <li>• Use the save button to save drafts</li>
+                <li>• Check that the content is scrollable</li>
+              </ul>
+            </div>
+            
+            <div className="text-center">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsOpen(true)}
+                className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-bold text-lg shadow-lg"
+              >
+                Open AI Challenge Generator
+              </motion.button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <AIChallengeGenerator
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        onChallengeGenerated={(challenge) => {
+          console.log('Challenge generated:', challenge);
+          alert('Challenge generated successfully! Check the console for details.');
+          setIsOpen(false);
+        }}
+        userLevel={10}
+        membershipTier="premium"
+        generationsLeft={5}
+        onGenerationUsed={() => console.log('Generation used')}
+        onBackToTypeSelection={() => setStep('type')}
+      />
+    </div>
+  );
+};

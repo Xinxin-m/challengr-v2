@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { UserRPGProgress, GeneratedChallenge, Challenge } from '../types/rpg-system';
-import { ThemeType } from '../config/themes';
+import { UserRPGProgress, GeneratedChallenge, Challenge } from '../config/rpg-system';
+import { ThemeType } from '../styles/themes';
 import { MOCK_CHALLENGES } from '../data/mockChallenges';
 import { DEFAULT_USER_PROGRESS } from '../data/defaultUserProgress';
 

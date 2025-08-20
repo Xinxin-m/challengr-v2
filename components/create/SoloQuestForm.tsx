@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Target, Plus, X, Shield, Sparkles } from 'lucide-react';
+import { Target, Plus, X, Shield, Sparkles, Save } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Switch } from '../ui/switch';
+import { Button } from '../ui/button';
 
 interface SoloQuestFormProps {
   formData: any;
@@ -40,6 +41,19 @@ export const SoloQuestForm: React.FC<SoloQuestFormProps> = ({
 
   const isGoalValid = formData.goal.trim().startsWith('I will');
 
+  const handleSaveDraft = () => {
+    const draft = {
+      ...formData,
+      timestamp: new Date(),
+      type: 'solo-quest'
+    };
+    const drafts = JSON.parse(localStorage.getItem('challenge-drafts') || '[]');
+    drafts.push(draft);
+    localStorage.setItem('challenge-drafts', JSON.stringify(drafts));
+    // Show success feedback
+    alert('Draft saved successfully!');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -47,15 +61,48 @@ export const SoloQuestForm: React.FC<SoloQuestFormProps> = ({
       exit={{ opacity: 0, y: -20 }}
       className="space-y-6"
     >
-      {/* Header */}
-      <div className="flex items-center space-x-3 p-4 bg-emerald-500/10 rounded-xl border border-emerald-400/30">
-        <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
-          <Shield className="w-5 h-5 text-white" />
+      {/* Save Button at Top */}
+      <div className="flex justify-end">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleSaveDraft}
+          className="flex items-center space-x-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg"
+        >
+          <Save className="w-4 h-4" />
+          <span>Save Draft</span>
+        </motion.button>
+      </div>
+
+      {/* Header - Moved to top */}
+      <div className="flex items-center justify-between p-4 bg-emerald-500/10 rounded-xl border border-emerald-400/30">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+            <Shield className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-emerald-300">Solo Quest Configuration</h3>
+            <p className="text-emerald-200/70 text-sm">Forge your personal path to greatness</p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-xl font-bold text-emerald-300">Solo Quest Configuration</h3>
-          <p className="text-emerald-200/70 text-sm">Forge your personal path to greatness</p>
-        </div>
+      </div>
+
+      {/* Quest Lore */}
+      <div className="space-y-3">
+        <label className="block text-emerald-300 font-semibold">
+          <Sparkles className="w-4 h-4 inline mr-2" />
+          Quest Lore
+        </label>
+        <Textarea
+          placeholder="Inscribe your quest's lore... Share the tale of your challenge, its purpose, and what awaits those who dare to accept it."
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          className="bg-slate-800/50 border-emerald-400/30 text-white placeholder:text-slate-400 focus:border-emerald-400 focus:ring-emerald-400/20"
+          rows={3}
+        />
+        <p className="text-slate-400 text-sm">
+          Describe your quest's story and purpose. This will be visible to others who discover your challenge.
+        </p>
       </div>
 
       {/* Goal Field */}
@@ -157,21 +204,6 @@ export const SoloQuestForm: React.FC<SoloQuestFormProps> = ({
         <p className="text-slate-400 text-sm">
           Break your quest into smaller waypoints to track your progress and maintain motivation throughout your journey.
         </p>
-      </div>
-
-      {/* Privacy Settings */}
-      <div className="p-4 bg-slate-800/30 rounded-xl border border-emerald-400/20">
-        <div className="flex items-center justify-between">
-          <div>
-            <label className="text-emerald-300 font-semibold">Share Your Journey</label>
-            <p className="text-slate-400 text-sm">Allow others to witness your progress and be inspired by your dedication</p>
-          </div>
-          <Switch
-            checked={formData.isPublic}
-            onCheckedChange={(checked) => setFormData({ ...formData, isPublic: checked })}
-            className="data-[state=checked]:bg-emerald-500"
-          />
-        </div>
       </div>
 
       {/* Quest Preview */}

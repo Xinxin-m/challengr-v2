@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Home, Sword, Map, Trophy, Plus } from 'lucide-react';
+import { Home, Sword, Map, Trophy, Plus, BadgeDollarSign } from 'lucide-react';
 
 interface XuanhuanMobileNavigationProps {
   currentView: string;
@@ -13,7 +13,8 @@ const RUNE_BACKGROUND = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdod
 const navItems = [
   { view: 'home', icon: Home, label: 'Home', color: 'from-blue-500 to-cyan-500' },
   { view: 'arena', icon: Sword, label: 'Arena', color: 'from-red-500 to-orange-500' },
-  { view: 'map', icon: Map, label: 'Map', color: 'from-green-500 to-emerald-500' },
+  { view: 'betting', icon: BadgeDollarSign, label: 'Betting', color: 'from-green-500 to-emerald-500' },
+  { view: 'map', icon: Map, label: 'Map', color: 'from-teal-500 to-cyan-500' },
   { view: 'career', icon: Trophy, label: 'Milestones', color: 'from-purple-500 to-pink-500' }
 ];
 

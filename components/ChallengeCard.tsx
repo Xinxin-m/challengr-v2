@@ -6,7 +6,7 @@ import { Badge } from './ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Avatar } from './ui/avatar';
 import { Progress } from './ui/progress';
-import { Challenge } from '../types/rpg-system';
+import { Challenge } from '../config/rpg-system';
 
 interface ChallengeCardProps {
   challenge: Challenge;

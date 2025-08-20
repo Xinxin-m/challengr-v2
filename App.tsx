@@ -11,10 +11,10 @@ import { ParticleSystem, XPGainEffect, CoinCollectEffect, LevelUpEffect } from '
 import { ChallengrAI } from './components/ChallengrAI';
 import { ChallengeArena } from './components/app/ChallengeArena';
 import { CreateChallengeModal } from './components/create/CreateChallengeModal';
-import { CreatePostModal } from './components/CreatePostModal';
+import { ModernCreatePostModal } from './components/CreatePostModal';
 import { useAppLogic } from './hooks/useAppLogic';
 import { useAppHandlers } from './hooks/useAppHandlers';
-import { AAA_THEMES } from './config/themes';
+import { AAA_THEMES } from './styles/themes';
 
 function AppContent() {
   const { theme, toggleTheme } = useTheme();
@@ -56,7 +56,39 @@ function AppContent() {
         className="fixed inset-0 pointer-events-none z-0"
       />
 
-      {/* 修真学院头部 */}
+      {/* 桌面端修真侧边栏 */}
+      {!appState.isMobile && (
+        <motion.div 
+          initial={{ x: -320 }}
+          animate={{ x: 0 }}
+          className="onboarding-sidebar relative z-50"
+        >
+          <Sidebar
+            currentView={appState.currentView}
+            onViewChange={(view) => {
+              console.log('🌟 修真界域切换:', view);
+              appState.setCurrentView(view);
+            }}
+            userProgress={appState.userProgress}
+            onCreateChallenge={() => appState.setShowCreateChallenge(true)}
+            onCreatePost={() => appState.setShowCreatePost(true)}
+            onOpenProfile={() => appState.setShowProfile(true)}
+            onOpenNotifications={() => console.log('📜 修真传音符箓')}
+            onOpenAI={() => appState.setShowAI(true)}
+            onOpenWallet={() => console.log('💎 储物戒指')}
+            isCollapsed={appState.sidebarCollapsed}
+            onToggleCollapse={() => {
+              console.log('🔄 侧边栏收缩状态切换:', !appState.sidebarCollapsed);
+              appState.setSidebarCollapsed(!appState.sidebarCollapsed);
+            }}
+            notificationCount={0}
+            walletConnected={appState.walletConnected}
+            generationsRemaining={appState.generationsRemaining}
+          />
+        </motion.div>
+      )}
+
+      {/* 修真学院头部 - positioned after sidebar to be pushed by it */}
       <XuanhuanGameHeader
         isMobile={appState.isMobile}
         sidebarCollapsed={appState.sidebarCollapsed}
@@ -76,73 +108,36 @@ function AppContent() {
         walletConnected={appState.walletConnected}
       />
 
-      {/* 主布局 */}
-      <div className="flex">
-        {/* 桌面端修真侧边栏 */}
-        {!appState.isMobile && (
-          <motion.div 
-            initial={{ x: -320 }}
-            animate={{ x: 0 }}
-            className="onboarding-sidebar relative z-30"
+      {/* 主内容区域 - removed container box, simplified layout */}
+      <div className={`transition-all duration-300 ease-out ${
+        !appState.isMobile ? (appState.sidebarCollapsed ? 'ml-16' : 'ml-80') : ''
+      } ${!appState.isMobile ? 'pt-16' : 'pt-16'}`}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={appState.currentView}
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -30, scale: 0.95 }}
+            transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+            className="min-h-screen"
           >
-            <Sidebar
+            <ChallengeArena
               currentView={appState.currentView}
-              onViewChange={(view) => {
-                console.log('🌟 修真界域切换:', view);
-                appState.setCurrentView(view);
-              }}
+              activeTheme={activeTheme}
               userProgress={appState.userProgress}
-              onCreateChallenge={() => appState.setShowCreateChallenge(true)}
+              arenaChallenges={appState.arenaChallenges}
               onCreatePost={() => appState.setShowCreatePost(true)}
-              onOpenProfile={() => appState.setShowProfile(true)}
-              onOpenNotifications={() => console.log('📜 修真传音符箓')}
-              onOpenAI={() => appState.setShowAI(true)}
-              onOpenWallet={() => console.log('💎 储物戒指')}
-              isCollapsed={appState.sidebarCollapsed}
-              onToggleCollapse={() => {
-                console.log('🔄 侧边栏收缩状态切换:', !appState.sidebarCollapsed);
-                appState.setSidebarCollapsed(!appState.sidebarCollapsed);
-              }}
-              notificationCount={0}
-              walletConnected={appState.walletConnected}
-              generationsRemaining={appState.generationsRemaining}
+              onCreateChallenge={() => appState.setShowCreateChallenge(true)}
+              onChallengeAccept={handlers.handleChallengeAccept}
+              onChallengeSave={handlers.handleChallengeSave}
+              onChallengeInfo={handlers.handleChallengeInfo}
+                          onTokenEarn={handlers.handleTokenEarn}
+            onJobChange={handlers.handleJobChange}
+            onPlaceBet={handlers.handlePlaceBet}
             />
           </motion.div>
-        )}
-
-        {/* 主内容区域 */}
-        <div className={`flex-1 transition-all duration-700 ease-out relative ${
-          !appState.isMobile ? (appState.sidebarCollapsed ? 'ml-20' : 'ml-80') : ''
-        }`}>
-          <div className="h-20"></div>
-          <div className="min-h-[calc(100vh-5rem)] overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={appState.currentView}
-                initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -30, scale: 0.95 }}
-                transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-                className="h-full"
-              >
-                <ChallengeArena
-                  currentView={appState.currentView}
-                  activeTheme={activeTheme}
-                  userProgress={appState.userProgress}
-                  arenaChallenges={appState.arenaChallenges}
-                  onCreatePost={() => appState.setShowCreatePost(true)}
-                  onCreateChallenge={() => appState.setShowCreateChallenge(true)}
-                  onChallengeAccept={handlers.handleChallengeAccept}
-                  onChallengeSave={handlers.handleChallengeSave}
-                  onChallengeInfo={handlers.handleChallengeInfo}
-                  onTokenEarn={handlers.handleTokenEarn}
-                  onJobChange={handlers.handleJobChange}
-                />
-              </motion.div>
-            </AnimatePresence>
-          </div>
-          {appState.isMobile && <div className="h-24"></div>}
-        </div>
+        </AnimatePresence>
+        {appState.isMobile && <div className="h-24"></div>}
       </div>
 
       {/* 修真移动端导航 */}
@@ -232,8 +227,14 @@ function AppContent() {
 
         {/* Create Post Modal */}
         {appState.showCreatePost && (
-          <CreatePostModal
+          <ModernCreatePostModal
+            isOpen={appState.showCreatePost}
             onClose={() => appState.setShowCreatePost(false)}
+            onSubmit={(postData) => {
+              console.log('Post created:', postData);
+              appState.setShowCreatePost(false);
+            }}
+            userLevel={appState.userProgress.level}
           />
         )}
 
