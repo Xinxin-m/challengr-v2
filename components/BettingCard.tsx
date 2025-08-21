@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Clock, Users, Coins, TrendingUp, Calendar } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { CARD_BACKGROUNDS } from '../styles/themes';
+import { Slider } from './ui/slider';
 
 interface BettingCardProps {
   challenge: {
@@ -28,12 +30,16 @@ interface BettingCardProps {
       name: string;
       avatar: string;
     };
+    image?: string;
+    status?: 'live' | 'upcoming';
   };
   onClick: () => void;
   userCoins: number;
 }
 
 export function BettingCard({ challenge, onClick, userCoins }: BettingCardProps) {
+  const [betAmount, setBetAmount] = useState(challenge.minBet);
+
   const formatTimeLeft = () => {
     const now = new Date();
     const endTime = new Date(challenge.endTime);
@@ -70,42 +76,54 @@ export function BettingCard({ challenge, onClick, userCoins }: BettingCardProps)
   const yesOdds = challenge.totalPool > 0 ? (challenge.totalPool / (challenge.yesBets + 1)).toFixed(2) : '1.00';
   const noOdds = challenge.totalPool > 0 ? (challenge.totalPool / (challenge.noBets + 1)).toFixed(2) : '1.00';
 
+  // Calculate slider step based on min bet
+  const sliderStep = challenge.minBet;
+  const maxSliderValue = Math.floor(challenge.maxBet / sliderStep) * sliderStep;
+
   return (
     <motion.div
       onClick={onClick}
-      className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-200 dark:border-gray-700 overflow-hidden"
+      className={`rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden backdrop-blur-xl ${CARD_BACKGROUNDS.betting}`}
       whileHover={{ scale: 1.02, y: -4 }}
       whileTap={{ scale: 0.98 }}
     >
-      {/* Header */}
-      <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
-              {challenge.title}
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-              {challenge.description}
-            </p>
-          </div>
-          <div className="ml-4 flex flex-col items-end space-y-2">
-            <Badge 
-              variant="secondary" 
-              className={`${
-                challenge.difficulty === 'easy' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                challenge.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                challenge.difficulty === 'hard' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-              }`}
-            >
-              {challenge.difficulty}
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              {challenge.category}
-            </Badge>
-          </div>
+      {/* Thumbnail with Title Overlay */}
+      <div className="relative h-48 overflow-hidden">
+        {challenge.image ? (
+          <img
+            src={challenge.image}
+            alt={challenge.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-cyan-500" />
+        )}
+        
+        {/* Tags on top */}
+        <div className="absolute top-4 left-4 right-4 flex justify-between">
+          <Badge variant="outline" className="text-xs border-emerald-400/50 text-emerald-200 bg-emerald-900/50">
+            {challenge.category}
+          </Badge>
+          <Badge 
+            variant="secondary" 
+            className={`${
+              isBettingClosed ? 'bg-red-900/50 text-red-200 border-red-400/50' : 'bg-emerald-900/50 text-emerald-200 border-emerald-400/50'
+            }`}
+          >
+            {isBettingClosed ? 'Closed' : (challenge.status || 'Live')}
+          </Badge>
         </div>
 
+        {/* Title at bottom with gradient overlay */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4">
+          <h3 className="text-lg font-bold text-white line-clamp-2">
+            {challenge.title}
+          </h3>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-6 space-y-4">
         {/* Creator Info */}
         <div className="flex items-center space-x-3">
           <Avatar className="w-8 h-8">
@@ -115,144 +133,131 @@ export function BettingCard({ challenge, onClick, userCoins }: BettingCardProps)
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm font-medium text-gray-900 dark:text-white">
+            <p className="text-sm font-medium text-white">
               {challenge.creator.name}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-emerald-200">
               Challenge Creator
             </p>
           </div>
         </div>
-      </div>
 
-      {/* Time and Stats */}
-      <div className="p-6 space-y-4">
-        {/* Time Information */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center space-x-2">
-            <Calendar className="w-4 h-4 text-gray-500" />
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Start</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
-                {formatDateTime(challenge.startTime)}
-              </p>
+        {/* Stats directly below creator (no horizontal line) */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="text-center">
+            <div className="flex items-center justify-center space-x-1 mb-1">
+              <Users className="w-4 h-4 text-cyan-400" />
+              <span className="text-lg font-bold text-white">
+                {challenge.participants.length}
+              </span>
             </div>
+            <p className="text-xs text-emerald-200">Participants</p>
           </div>
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-gray-500" />
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">End</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
-                {formatDateTime(challenge.endTime)}
-              </p>
+          <div className="text-center">
+            <div className="flex items-center justify-center space-x-1 mb-1">
+              <Coins className="w-4 h-4 text-yellow-400" />
+              <span className="text-lg font-bold text-white">
+                {challenge.totalPool.toLocaleString()}
+              </span>
             </div>
+            <p className="text-xs text-emerald-200">Total Pool</p>
+          </div>
+          <div className="text-center">
+            <div className="flex items-center justify-center space-x-1 mb-1">
+              <TrendingUp className="w-4 h-4 text-emerald-400" />
+              <span className="text-lg font-bold text-white">
+                {challenge.yesBets + challenge.noBets}
+              </span>
+            </div>
+            <p className="text-xs text-emerald-200">Total Votes</p>
           </div>
         </div>
 
-        {/* Time Remaining */}
-        <div className={`rounded-xl p-3 ${
-          isBettingClosed 
-            ? 'bg-red-50 dark:bg-red-900/20' 
-            : 'bg-orange-50 dark:bg-orange-900/20'
-        }`}>
+        {/* Time Remaining in Yellow Box */}
+        <div className="bg-yellow-500/20 border border-yellow-400/30 rounded-xl p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Clock className={`w-4 h-4 ${
-                isBettingClosed ? 'text-red-500' : 'text-orange-500'
-              }`} />
-              <span className={`text-sm font-medium ${
-                isBettingClosed ? 'text-red-700 dark:text-red-300' : 'text-orange-700 dark:text-orange-300'
-              }`}>
-                {isBettingClosed ? 'Betting Closed' : 'Time Remaining'}
-              </span>
+              <Clock className="w-4 h-4 text-yellow-400" />
+              <span className="text-sm text-yellow-300">Time Remaining</span>
             </div>
-            <Badge variant="secondary" className={`${
-              isBettingClosed 
-                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                : 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
-            }`}>
+            <Badge variant="secondary" className="bg-yellow-900/50 text-yellow-200 border-yellow-400/50 font-bold">
               {formatTimeLeft()}
             </Badge>
           </div>
         </div>
 
-        {/* Betting Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="text-center">
-            <div className="flex items-center justify-center space-x-1 mb-1">
-              <Users className="w-4 h-4 text-blue-500" />
-              <span className="text-lg font-bold text-gray-900 dark:text-white">
-                {challenge.participants.length}
-              </span>
+        {/* Betting Odds - Clickable */}
+        <div className="grid grid-cols-2 gap-3">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+            className="bg-green-500/20 border border-green-400/30 rounded-lg p-3 text-center hover:bg-green-500/30 transition-colors"
+          >
+            <div className="flex items-center justify-center space-x-2 mb-1">
+              <span className="text-sm font-semibold text-green-300">YES</span>
+              <Badge variant="secondary" className="bg-green-900/50 text-green-200 border-green-400/50">
+                {yesOdds}x
+              </Badge>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Participants</p>
-          </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center space-x-1 mb-1">
-              <Coins className="w-4 h-4 text-yellow-500" />
-              <span className="text-lg font-bold text-gray-900 dark:text-white">
-                {challenge.totalPool.toLocaleString()}
-              </span>
+            <p className="text-xs text-green-200">
+              {challenge.yesBets} votes
+            </p>
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+            className="bg-red-500/20 border border-red-400/30 rounded-lg p-3 text-center hover:bg-red-500/30 transition-colors"
+          >
+            <div className="flex items-center justify-center space-x-2 mb-1">
+              <span className="text-sm font-semibold text-red-300">NO</span>
+              <Badge variant="secondary" className="bg-red-900/50 text-red-200 border-red-400/50">
+                {noOdds}x
+              </Badge>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Total Pool</p>
-          </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center space-x-1 mb-1">
-              <TrendingUp className="w-4 h-4 text-green-500" />
-              <span className="text-lg font-bold text-gray-900 dark:text-white">
-                {challenge.yesBets + challenge.noBets}
-              </span>
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Total Bets</p>
-          </div>
+            <p className="text-xs text-red-200">
+              {challenge.noBets} votes
+            </p>
+          </motion.button>
         </div>
 
-        {/* Betting Odds */}
+        {/* Bet Amount Slider */}
         {!isBettingClosed && (
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 text-center">
-              <div className="flex items-center justify-center space-x-2 mb-1">
-                <span className="text-sm font-semibold text-green-700 dark:text-green-300">YES</span>
-                <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                  {yesOdds}x
-                </Badge>
-              </div>
-              <p className="text-xs text-green-600 dark:text-green-400">
-                {challenge.yesBets} bets
-              </p>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-emerald-200">Bet Amount:</span>
+              <span className="text-white font-medium">{betAmount} coins</span>
             </div>
-            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3 text-center">
-              <div className="flex items-center justify-center space-x-2 mb-1">
-                <span className="text-sm font-semibold text-red-700 dark:text-red-300">NO</span>
-                <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                  {noOdds}x
-                </Badge>
-              </div>
-              <p className="text-xs text-red-600 dark:text-red-400">
-                {challenge.noBets} bets
-              </p>
+            <Slider
+              value={[betAmount]}
+              onValueChange={(value: number[]) => setBetAmount(value[0])}
+              max={maxSliderValue}
+              min={challenge.minBet}
+              step={sliderStep}
+              className="w-full"
+            />
+            <div className="flex items-center justify-between text-xs text-emerald-200">
+              <span>Min: {challenge.minBet}</span>
+              <span>Max: {challenge.maxBet}</span>
             </div>
           </div>
         )}
-
-        {/* Bet Limits */}
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-500 dark:text-gray-400">
-            Min bet: <span className="font-medium">{challenge.minBet} coins</span>
-          </span>
-          <span className="text-gray-500 dark:text-gray-400">
-            Max bet: <span className="font-medium">{challenge.maxBet} coins</span>
-          </span>
-        </div>
 
         {/* Action Button */}
         <motion.button
           className={`w-full py-3 px-4 rounded-xl font-semibold transition-all duration-200 ${
             isBettingClosed
-              ? 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed'
+              ? 'bg-gray-500/20 text-gray-400 cursor-not-allowed border border-gray-400/30'
               : userCoins < challenge.minBet
-              ? 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl'
+              ? 'bg-red-500/20 text-red-400 cursor-not-allowed border border-red-400/30'
+              : 'bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-xl border border-emerald-400/50'
           }`}
           disabled={isBettingClosed || userCoins < challenge.minBet}
           whileHover={!isBettingClosed && userCoins >= challenge.minBet ? { scale: 1.02 } : {}}

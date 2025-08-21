@@ -32,7 +32,6 @@ export const BattleCard: React.FC<BattleCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [betAmount, setBetAmount] = useState(10);
 
   // Variant configurations
   const variantConfig = {
@@ -57,23 +56,10 @@ export const BattleCard: React.FC<BattleCardProps> = ({
   };
 
   const config = variantConfig[variant];
-  const canAfford = userProgress.dailyCoins >= betAmount;
 
   const handleSave = () => {
     setIsSaved(!isSaved);
     onSave?.(challenge.id);
-  };
-
-  const handleBetBlue = () => {
-    if (canAfford) {
-      onBetBlue?.(challenge.id, betAmount);
-    }
-  };
-
-  const handleBetRed = () => {
-    if (canAfford) {
-      onBetRed?.(challenge.id, betAmount);
-    }
   };
 
   // Helper function to format time left
@@ -182,21 +168,64 @@ export const BattleCard: React.FC<BattleCardProps> = ({
             </p>
           </div>
 
-          {/* Challenge Goal */}
+          {/* Battle Goal */}
           <div className="mb-4 p-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl border border-cyan-400/30">
             <h4 className="font-medium text-white mb-2 flex items-center">
               <Trophy className="w-4 h-4 mr-2 text-cyan-400" />
               Battle Goal
             </h4>
             <p className="text-white/80 text-sm">{challenge.challenge.goal}</p>
-            <div className="flex items-center space-x-4 mt-2 text-xs text-white/60">
-              <div className="flex items-center space-x-1">
-                <Clock className="w-3 h-3" />
-                <span>{challenge.challenge.timeLimit}min</span>
+          </div>
+
+          {/* Battle Stats */}
+          <div className="mb-4 grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="flex items-center justify-center space-x-1 mb-1">
+                <Users className="w-4 h-4 text-cyan-400" />
+                <span className="text-lg font-bold text-white">
+                  {challenge.totalParticipants}
+                </span>
               </div>
-              <div className="flex items-center space-x-1">
-                <Users className="w-3 h-3" />
-                <span>{challenge.totalParticipants} betting</span>
+              <p className="text-xs text-white/60">Participants</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center space-x-1 mb-1">
+                <Coins className="w-4 h-4 text-yellow-400" />
+                <span className="text-lg font-bold text-white">
+                  {challenge.betting.totalPool}
+                </span>
+              </div>
+              <p className="text-xs text-white/60">Total Pool</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center space-x-1 mb-1">
+                <TrendingUp className="w-4 h-4 text-emerald-400" />
+                <span className="text-lg font-bold text-white">
+                  {challenge.participants.blue.totalBets + challenge.participants.red.totalBets}
+                </span>
+              </div>
+              <p className="text-xs text-white/60">Total Bets</p>
+            </div>
+          </div>
+
+          {/* Start and End Time */}
+          <div className="mb-4 grid grid-cols-2 gap-4">
+            <div className="flex items-center space-x-2">
+              <Calendar className="w-4 h-4 text-emerald-400" />
+              <div>
+                <p className="text-xs text-white/60">Battle Start</p>
+                <p className="text-sm font-medium text-white">
+                  {challenge.eventTime?.toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Clock className="w-4 h-4 text-emerald-400" />
+              <div>
+                <p className="text-xs text-white/60">Betting End</p>
+                <p className="text-sm font-medium text-white">
+                  {challenge.betting.endTime.toLocaleDateString()}
+                </p>
               </div>
             </div>
           </div>
@@ -247,41 +276,7 @@ export const BattleCard: React.FC<BattleCardProps> = ({
             </div>
           </div>
 
-          {/* Betting Controls */}
-          <div className="mb-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <label className="text-xs text-white/60">Bet Amount:</label>
-              <input
-                type="range"
-                min={challenge.betting.minBet}
-                max={challenge.betting.maxBet}
-                value={betAmount}
-                onChange={(e) => setBetAmount(Number(e.target.value))}
-                className="flex-1 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
-              />
-              <span className="text-xs text-white font-medium">${betAmount}</span>
-            </div>
-          </div>
 
-          {/* Betting Buttons */}
-          <div className="flex space-x-3">
-            <Button
-              onClick={handleBetBlue}
-              disabled={!canAfford}
-              className="flex-1 h-10 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold border-0 shadow-lg"
-            >
-              <Shield className="w-4 h-4 mr-2" />
-              Bet Blue (${challenge.participants.blue.odds}x)
-            </Button>
-            <Button
-              onClick={handleBetRed}
-              disabled={!canAfford}
-              className="flex-1 h-10 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold border-0 shadow-lg"
-            >
-              <Sword className="w-4 h-4 mr-2" />
-              Bet Red (${challenge.participants.red.odds}x)
-            </Button>
-          </div>
 
           {/* Time Left */}
           <div className="mt-3 text-center">
@@ -297,19 +292,7 @@ export const BattleCard: React.FC<BattleCardProps> = ({
             )}
           </div>
 
-          {/* Insufficient Funds Warning */}
-          {!canAfford && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-3 p-3 bg-red-500/20 border border-red-400/30 rounded-xl"
-            >
-              <p className="text-red-400 text-sm text-center">
-                <Coins className="w-4 h-4 inline mr-1" />
-                Insufficient coins. Need ${betAmount} to place bet!
-              </p>
-            </motion.div>
-          )}
+
         </div>
 
         {/* Subtle animated glow */}

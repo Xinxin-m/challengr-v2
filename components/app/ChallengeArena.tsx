@@ -6,7 +6,7 @@ import { StellarHub } from '../StellarHub';
 import { CareerProgressInterface } from '../CareerProgressInterface';
 import { RealisticEarthMap } from '../RealisticEarthMap';
 import { ChallengeModal } from '../ChallengeModal';
-import { BettingPage } from '../BettingPage';
+import { BettingArena } from '../BettingArena';
 import { 
   Sword, Map, Trophy, Home, Filter, Search, Grid, List, 
   TrendingUp, Clock, Users, Star, Zap, Target, Crown, Coins
@@ -380,9 +380,27 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
-          <BettingPage
-            userCoins={userProgress.coins || 0}
-            onPlaceBet={onPlaceBet}
+          <BettingArena
+            userTokens={{
+              goldCoins: userProgress.coins || 0,
+              bettingCredits: userProgress.bettingCredits || 100,
+              winStreak: userProgress.winStreak || 0
+            }}
+            onTokenEarn={(amount, type) => {
+              if (type === 'gold') {
+                // Handle gold coin earning
+                console.log('Earned gold coins:', amount);
+              } else if (type === 'betting') {
+                // Handle betting credits
+                console.log('Betting credits updated:', amount);
+              }
+            }}
+            onBettingWin={() => {
+              // Handle betting win
+              console.log('Betting win!');
+            }}
+            winStreak={userProgress.winStreak || 0}
+            membershipTier="free"
           />
         </motion.div>
       );

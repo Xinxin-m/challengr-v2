@@ -7,6 +7,7 @@ import { Filter, Search, TrendingUp, Clock, Users } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
+import { PAGE_BACKGROUNDS } from '../styles/themes';
 
 interface BettingPageProps {
   userCoins: number;
@@ -65,7 +66,7 @@ export function BettingPage({ userCoins, onPlaceBet }: BettingPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900">
+    <div className={`min-h-screen bg-gradient-to-br ${PAGE_BACKGROUNDS.betting}`}>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <motion.div
