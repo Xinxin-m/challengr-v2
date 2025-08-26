@@ -5,6 +5,7 @@ import { BettingCard } from './challenges/BettingCard';
 import { BattleCard } from './challenges/BattleCard';
 import { ProfileCard } from './ProfileCard';
 import { PostCard } from './PostCard';
+import { ChallengeModal } from './ChallengeModal';
 import { MOCK_CHALLENGES, MOCK_SINGLE_CHALLENGES, MOCK_DOUBLE_CHALLENGES } from '../data/mockChallenges';
 import { MOCK_POSTS } from '../data/mockPosts';
 import { MOCK_USERS } from '../data/mockUsers';
@@ -37,6 +38,9 @@ export const StellarHub: React.FC<StellarHubProps> = ({
     battle: false,
     nearby: false
   });
+  
+  // Modal state management
+  const [selectedChallenge, setSelectedChallenge] = useState<any>(null);
 
   // Filter challenges by category for different sections
   const allTrendingChallenges = useMemo(() => 
@@ -140,6 +144,25 @@ export const StellarHub: React.FC<StellarHubProps> = ({
     }));
   };
 
+  // Modal handlers
+  const handleChallengeClick = (challengeId: string) => {
+    const challenge = MOCK_CHALLENGES.find(c => c.id === challengeId) || 
+                     MOCK_SINGLE_CHALLENGES.find(c => c.id === challengeId) ||
+                     MOCK_DOUBLE_CHALLENGES.find(c => c.id === challengeId);
+    if (challenge) {
+      setSelectedChallenge(challenge);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setSelectedChallenge(null);
+  };
+
+  const handleJoinChallenge = (challengeId: string) => {
+    onChallengeAccept?.(challengeId);
+    setSelectedChallenge(null);
+  };
+
   const renderForYouPanel = () => (
     <div className="space-y-6">
       {/* Trending Section */}
@@ -148,7 +171,6 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           className="flex items-center space-x-3 mb-6 cursor-pointer select-none group"
           onClick={() => toggleSection('trending')}
           whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <motion.div 
             className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-orange-500/40 transition-all duration-300"
@@ -161,74 +183,42 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           </h2>
         </motion.div>
         <div className="relative">
-          {/* Scroll Controls */}
-          {trendingChallenges.length > 4 && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => {
-                const container = document.getElementById('trending-scroll');
-                if (container) container.scrollLeft -= 400;
-              }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-orange-400/30 rounded-full flex items-center justify-center text-orange-400 hover:bg-orange-500/10 hover:border-orange-400 transition-all duration-300 shadow-xl"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </motion.button>
-          )}
-          
-          {trendingChallenges.length > 4 && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => {
-                const container = document.getElementById('trending-scroll');
-                if (container) container.scrollLeft += 400;
-              }}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-orange-400/30 rounded-full flex items-center justify-center text-orange-400 hover:bg-orange-500/10 hover:border-orange-400 transition-all duration-300 shadow-xl"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </motion.button>
-          )}
-
-          {/* Horizontal Scrolling Container */}
-          <div className="overflow-x-auto scrollbar-hide">
-            <motion.div
-              id="trending-scroll"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex gap-6 pb-4 min-w-max"
-            >
-              <AnimatePresence mode="popLayout">
-                {trendingChallenges.map((challenge, index) => (
-                  <motion.div
-                    key={challenge.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ 
-                      delay: index * 0.05,
-                      layout: { duration: 0.3 }
-                    }}
-                    className="flex-shrink-0"
-                    style={{ width: '320px' }}
-                  >
-                    <AAA_ChallengeCard
-                      challenge={challenge}
-                      userProgress={userProgress}
-                      onAccept={onChallengeAccept}
-                      onSave={onChallengeSave}
-                      onViewDetails={onChallengeInfo}
-                      onCardClick={onChallengeInfo}
-                      variant="default"
-                      showParticles={true}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          </div>
+          {/* Cards displayed directly on background - no scrolling container */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3"
+          >
+            <AnimatePresence mode="popLayout">
+              {trendingChallenges.map((challenge, index) => (
+                <motion.div
+                  key={challenge.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ 
+                    delay: index * 0.05,
+                    layout: { duration: 0.3 }
+                  }}
+                >
+                  <AAA_ChallengeCard
+                    challenge={challenge}
+                    userProgress={userProgress}
+                    onAccept={onChallengeAccept}
+                    onSave={onChallengeSave}
+                    onViewDetails={onChallengeInfo}
+                    onCardClick={handleChallengeClick}
+                    variant="default"
+                    showParticles={true}
+                    uniformSize={false}
+                    showThumbnail={true}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </section>
 
@@ -238,7 +228,6 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           className="flex items-center space-x-3 mb-6 cursor-pointer select-none group"
           onClick={() => toggleSection('new')}
           whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <motion.div 
             className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-blue-500/40 transition-all duration-300"
@@ -251,74 +240,42 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           </h2>
         </motion.div>
         <div className="relative">
-          {/* Scroll Controls */}
-          {newChallenges.length > 4 && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => {
-                const container = document.getElementById('new-scroll');
-                if (container) container.scrollLeft -= 400;
-              }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-blue-400/30 rounded-full flex items-center justify-center text-blue-400 hover:bg-blue-500/10 hover:border-blue-400 transition-all duration-300 shadow-xl"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </motion.button>
-          )}
-          
-          {newChallenges.length > 4 && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => {
-                const container = document.getElementById('new-scroll');
-                if (container) container.scrollLeft += 400;
-              }}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-blue-400/30 rounded-full flex items-center justify-center text-blue-400 hover:bg-blue-500/10 hover:border-blue-400 transition-all duration-300 shadow-xl"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </motion.button>
-          )}
-
-          {/* Horizontal Scrolling Container */}
-          <div className="overflow-x-auto scrollbar-hide">
-            <motion.div
-              id="new-scroll"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex gap-6 pb-4 min-w-max"
-            >
-              <AnimatePresence mode="popLayout">
-                {newChallenges.map((challenge, index) => (
-                  <motion.div
-                    key={challenge.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ 
-                      delay: index * 0.05,
-                      layout: { duration: 0.3 }
-                    }}
-                    className="flex-shrink-0"
-                    style={{ width: '320px' }}
-                  >
-                    <AAA_ChallengeCard
-                      challenge={challenge}
-                      userProgress={userProgress}
-                      onAccept={onChallengeAccept}
-                      onSave={onChallengeSave}
-                      onViewDetails={onChallengeInfo}
-                      onCardClick={onChallengeInfo}
-                      variant="default"
-                      showParticles={true}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          </div>
+          {/* Cards displayed directly on background - no scrolling container */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3"
+          >
+            <AnimatePresence mode="popLayout">
+              {newChallenges.map((challenge, index) => (
+                <motion.div
+                  key={challenge.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ 
+                    delay: index * 0.05,
+                    layout: { duration: 0.3 }
+                  }}
+                >
+                  <AAA_ChallengeCard
+                    challenge={challenge}
+                    userProgress={userProgress}
+                    onAccept={onChallengeAccept}
+                    onSave={onChallengeSave}
+                    onViewDetails={onChallengeInfo}
+                    onCardClick={handleChallengeClick}
+                    variant="default"
+                    showParticles={true}
+                    uniformSize={false}
+                    showThumbnail={true}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </section>
 
@@ -328,7 +285,6 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           className="flex items-center space-x-3 mb-6 cursor-pointer select-none group"
           onClick={() => toggleSection('free')}
           whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <motion.div 
             className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-green-500/40 transition-all duration-300"
@@ -341,74 +297,42 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           </h2>
         </motion.div>
         <div className="relative">
-          {/* Scroll Controls */}
-          {freeChallenges.length > 4 && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => {
-                const container = document.getElementById('free-scroll');
-                if (container) container.scrollLeft -= 400;
-              }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-green-400/30 rounded-full flex items-center justify-center text-green-400 hover:bg-green-500/10 hover:border-green-400 transition-all duration-300 shadow-xl"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </motion.button>
-          )}
-          
-          {freeChallenges.length > 4 && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => {
-                const container = document.getElementById('free-scroll');
-                if (container) container.scrollLeft += 400;
-              }}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-green-400/30 rounded-full flex items-center justify-center text-green-400 hover:bg-green-500/10 hover:border-green-400 transition-all duration-300 shadow-xl"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </motion.button>
-          )}
-
-          {/* Horizontal Scrolling Container */}
-          <div className="overflow-x-auto scrollbar-hide">
-            <motion.div
-              id="free-scroll"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex gap-6 pb-4 min-w-max"
-            >
-              <AnimatePresence mode="popLayout">
-                {freeChallenges.map((challenge, index) => (
-                  <motion.div
-                    key={challenge.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ 
-                      delay: index * 0.05,
-                      layout: { duration: 0.3 }
-                    }}
-                    className="flex-shrink-0"
-                    style={{ width: '320px' }}
-                  >
-                    <AAA_ChallengeCard
-                      challenge={challenge}
-                      userProgress={userProgress}
-                      onAccept={onChallengeAccept}
-                      onSave={onChallengeSave}
-                      onViewDetails={onChallengeInfo}
-                      onCardClick={onChallengeInfo}
-                      variant="default"
-                      showParticles={true}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          </div>
+          {/* Cards displayed directly on background - no scrolling container */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3"
+          >
+            <AnimatePresence mode="popLayout">
+              {freeChallenges.map((challenge, index) => (
+                <motion.div
+                  key={challenge.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ 
+                    delay: index * 0.05,
+                    layout: { duration: 0.3 }
+                  }}
+                >
+                  <AAA_ChallengeCard
+                    challenge={challenge}
+                    userProgress={userProgress}
+                    onAccept={onChallengeAccept}
+                    onSave={onChallengeSave}
+                    onViewDetails={onChallengeInfo}
+                    onCardClick={handleChallengeClick}
+                    variant="default"
+                    showParticles={true}
+                    uniformSize={false}
+                    showThumbnail={true}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </section>
 
@@ -418,7 +342,6 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           className="flex items-center space-x-3 mb-6 cursor-pointer select-none group"
           onClick={() => toggleSection('betting')}
           whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <motion.div 
             className="w-10 h-10 bg-gradient-to-r from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-amber-500/40 transition-all duration-300"
@@ -431,74 +354,40 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           </h2>
         </motion.div>
         <div className="relative">
-          {/* Scroll Controls */}
-          {bettingChallenges.length > 4 && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => {
-                const container = document.getElementById('betting-scroll');
-                if (container) container.scrollLeft -= 400;
-              }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-amber-400/30 rounded-full flex items-center justify-center text-amber-400 hover:bg-amber-500/10 hover:border-amber-400 transition-all duration-300 shadow-xl"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </motion.button>
-          )}
-          
-          {bettingChallenges.length > 4 && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => {
-                const container = document.getElementById('betting-scroll');
-                if (container) container.scrollLeft += 400;
-              }}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-amber-400/30 rounded-full flex items-center justify-center text-amber-400 hover:bg-amber-500/10 hover:border-amber-400 transition-all duration-300 shadow-xl"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </motion.button>
-          )}
-
-          {/* Horizontal Scrolling Container */}
-          <div className="overflow-x-auto scrollbar-hide">
-            <motion.div
-              id="betting-scroll"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex gap-6 pb-4 min-w-max"
-            >
-              <AnimatePresence mode="popLayout">
-                {bettingChallenges.map((challenge, index) => (
-                  <motion.div
-                    key={challenge.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ 
-                      delay: index * 0.05,
-                      layout: { duration: 0.3 }
-                    }}
-                    className="flex-shrink-0"
-                    style={{ width: '384px' }}
-                  >
-                    <BettingCard
-                      challenge={challenge}
-                      userProgress={userProgress}
-                      onBetYes={handleBetYes}
-                      onBetNo={handleBetNo}
-                      onSave={onChallengeSave}
-                      onShare={(id) => console.log('Share:', id)}
-                      onCardClick={onChallengeInfo}
-                      variant="default"
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          </div>
+          {/* Cards displayed directly on background - no scrolling container */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3"
+          >
+            <AnimatePresence mode="popLayout">
+              {bettingChallenges.map((challenge, index) => (
+                <motion.div
+                  key={challenge.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ 
+                    delay: index * 0.05,
+                    layout: { duration: 0.3 }
+                  }}
+                >
+                  <BettingCard
+                    challenge={challenge}
+                    userProgress={userProgress}
+                    onBetYes={handleBetYes}
+                    onBetNo={handleBetNo}
+                    onSave={onChallengeSave}
+                    onShare={(id) => console.log('Share:', id)}
+                    onCardClick={handleChallengeClick}
+                    variant="default"
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </section>
 
@@ -508,7 +397,6 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           className="flex items-center space-x-3 mb-6 cursor-pointer select-none group"
           onClick={() => toggleSection('battle')}
           whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <motion.div 
             className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-purple-500/40 transition-all duration-300"
@@ -521,74 +409,40 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           </h2>
         </motion.div>
         <div className="relative">
-          {/* Scroll Controls */}
-          {battleChallenges.length > 4 && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => {
-                const container = document.getElementById('battle-scroll');
-                if (container) container.scrollLeft -= 400;
-              }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-purple-400/30 rounded-full flex items-center justify-center text-purple-400 hover:bg-purple-500/10 hover:border-purple-400 transition-all duration-300 shadow-xl"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </motion.button>
-          )}
-          
-          {battleChallenges.length > 4 && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => {
-                const container = document.getElementById('battle-scroll');
-                if (container) container.scrollLeft += 400;
-              }}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-purple-400/30 rounded-full flex items-center justify-center text-purple-400 hover:bg-purple-500/10 hover:border-purple-400 transition-all duration-300 shadow-xl"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </motion.button>
-          )}
-
-          {/* Horizontal Scrolling Container */}
-          <div className="overflow-x-auto scrollbar-hide">
-            <motion.div
-              id="battle-scroll"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex gap-6 pb-4 min-w-max"
-            >
-              <AnimatePresence mode="popLayout">
-                {battleChallenges.map((challenge, index) => (
-                  <motion.div
-                    key={challenge.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ 
-                      delay: index * 0.05,
-                      layout: { duration: 0.3 }
-                    }}
-                    className="flex-shrink-0"
-                    style={{ width: '384px' }}
-                  >
-                    <BattleCard
-                      challenge={challenge}
-                      userProgress={userProgress}
-                      onBetBlue={handleBetBlue}
-                      onBetRed={handleBetRed}
-                      onSave={onChallengeSave}
-                      onShare={(id) => console.log('Share:', id)}
-                      onCardClick={onChallengeInfo}
-                      variant="default"
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          </div>
+          {/* Cards displayed directly on background - no scrolling container */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3"
+          >
+            <AnimatePresence mode="popLayout">
+              {battleChallenges.map((challenge, index) => (
+                <motion.div
+                  key={challenge.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ 
+                    delay: index * 0.05,
+                    layout: { duration: 0.3 }
+                  }}
+                >
+                  <BattleCard
+                    challenge={challenge}
+                    userProgress={userProgress}
+                    onBetBlue={handleBetBlue}
+                    onBetRed={handleBetRed}
+                    onSave={onChallengeSave}
+                    onShare={(id) => console.log('Share:', id)}
+                    onCardClick={handleChallengeClick}
+                    variant="default"
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </section>
 
@@ -598,7 +452,6 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           className="flex items-center space-x-3 mb-6 cursor-pointer select-none group"
           onClick={() => toggleSection('nearby')}
           whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <motion.div 
             className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-indigo-500/40 transition-all duration-300"
@@ -611,74 +464,42 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           </h2>
         </motion.div>
         <div className="relative">
-          {/* Scroll Controls */}
-          {nearbyChallenges.length > 4 && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => {
-                const container = document.getElementById('nearby-scroll');
-                if (container) container.scrollLeft -= 400;
-              }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-indigo-400/30 rounded-full flex items-center justify-center text-indigo-400 hover:bg-indigo-500/10 hover:border-indigo-400 transition-all duration-300 shadow-xl"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </motion.button>
-          )}
-          
-          {nearbyChallenges.length > 4 && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={() => {
-                const container = document.getElementById('nearby-scroll');
-                if (container) container.scrollLeft += 400;
-              }}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-indigo-400/30 rounded-full flex items-center justify-center text-indigo-400 hover:bg-indigo-500/10 hover:border-indigo-400 transition-all duration-300 shadow-xl"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </motion.button>
-          )}
-
-          {/* Horizontal Scrolling Container */}
-          <div className="overflow-x-auto scrollbar-hide">
-            <motion.div
-              id="nearby-scroll"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex gap-6 pb-4 min-w-max"
-            >
-              <AnimatePresence mode="popLayout">
-                {nearbyChallenges.map((challenge, index) => (
-                  <motion.div
-                    key={challenge.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ 
-                      delay: index * 0.05,
-                      layout: { duration: 0.3 }
-                    }}
-                    className="flex-shrink-0"
-                    style={{ width: '320px' }}
-                  >
-                    <AAA_ChallengeCard
-                      challenge={challenge}
-                      userProgress={userProgress}
-                      onAccept={onChallengeAccept}
-                      onSave={onChallengeSave}
-                      onViewDetails={onChallengeInfo}
-                      onCardClick={onChallengeInfo}
-                      variant="default"
-                      showParticles={true}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          </div>
+          {/* Cards displayed directly on background - no scrolling container */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3"
+          >
+            <AnimatePresence mode="popLayout">
+              {nearbyChallenges.map((challenge, index) => (
+                <motion.div
+                  key={challenge.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ 
+                    delay: index * 0.05,
+                    layout: { duration: 0.3 }
+                  }}
+                >
+                  <AAA_ChallengeCard
+                    challenge={challenge}
+                    userProgress={userProgress}
+                    onAccept={onChallengeAccept}
+                    onSave={onChallengeSave}
+                    onViewDetails={onChallengeInfo}
+                    onCardClick={handleChallengeClick}
+                    variant="default"
+                    showParticles={true}
+                    uniformSize={false}
+                    showThumbnail={true}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </section>
 
@@ -777,14 +598,15 @@ export const StellarHub: React.FC<StellarHubProps> = ({
 
   return (
     <div className="min-h-screen bg-page-gradient">
-      {/* Container with responsive padding */}
-      <div className="container mx-auto page-x pt-2 pb-8 space-y-6">
-        {/* Hero Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+      {/* Container with responsive padding matching ChallengeArena */}
+      <div className="flex-1 px-6 pb-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Hero Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
           <div className="relative bg-gradient-to-r from-slate-900/50 to-purple-900/50 backdrop-blur-xl border border-cyan-400/20 rounded-3xl p-4 sm:p-8 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-purple-600/5" />
           
@@ -817,36 +639,34 @@ export const StellarHub: React.FC<StellarHubProps> = ({
         </div>
       </motion.div>
 
-        {/* Toggle Tabs - Centered */}
+        {/* Toggle Tabs - Centered with consistent height */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="flex items-center justify-center mb-6 sm:mb-8 px-2"
         >
-        <div className="flex items-center space-x-1 sm:space-x-2 bg-slate-800/50 backdrop-blur-sm border border-white/10 rounded-2xl p-1">
+        <div className="flex items-center space-x-1 bg-slate-800/50 backdrop-blur-sm border border-white/10 rounded-2xl p-1">
           <motion.button
             onClick={() => setActiveTab('forYou')}
-            className={`flex items-center space-x-1 sm:space-x-2 px-3 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-200 text-xs sm:text-sm font-medium ${
+            className={`flex items-center justify-center px-6 py-3 h-12 rounded-xl transition-all duration-200 text-sm font-medium ${
               activeTab === 'forYou'
                 ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg'
                 : 'text-white/60 hover:text-white hover:bg-white/10'
             }`}
             whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
           >
             <span>For You</span>
           </motion.button>
           
           <motion.button
             onClick={() => setActiveTab('following')}
-            className={`flex items-center space-x-1 sm:space-x-2 px-3 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-200 text-xs sm:text-sm font-medium ${
+            className={`flex items-center justify-center px-6 py-3 h-12 rounded-xl transition-all duration-200 text-sm font-medium ${
               activeTab === 'following'
                 ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
                 : 'text-white/60 hover:text-white hover:bg-white/10'
             }`}
             whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
           >
             <span>Following</span>
           </motion.button>
@@ -865,7 +685,23 @@ export const StellarHub: React.FC<StellarHubProps> = ({
             {activeTab === 'forYou' ? renderForYouPanel() : renderFollowingPanel()}
           </motion.div>
         </AnimatePresence>
+        </div>
       </div>
+
+      {/* Challenge Modal */}
+      {selectedChallenge && (
+        <ChallengeModal
+          challenge={selectedChallenge}
+          isOpen={true}
+          onClose={handleCloseModal}
+          onJoin={handleJoinChallenge}
+          onBet={(challengeId, amount) => {
+            console.log('Bet placed:', challengeId, amount);
+            handleCloseModal();
+          }}
+          thumbnail={selectedChallenge.thumbnail}
+        />
+      )}
     </div>
   );
 };

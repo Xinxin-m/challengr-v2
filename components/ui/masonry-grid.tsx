@@ -14,7 +14,7 @@ export function MasonryGrid({
   className = "",
 }: MasonryGridProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [columns, setColumns] = useState(2);
+  const [columns, setColumns] = useState(3);
   const childrenArray = React.Children.toArray(children);
 
   // Calculate number of columns based on container width
@@ -29,6 +29,7 @@ export function MasonryGrid({
           1,
           Math.floor(containerWidth / minColumnWidth)
         );
+
         setColumns(calculatedColumns);
       }
     };
@@ -43,7 +44,8 @@ export function MasonryGrid({
       rafId = requestAnimationFrame(updateColumns);
     };
 
-    updateColumns();
+    // Initial update with a slight delay to ensure DOM is ready
+    setTimeout(updateColumns, 100);
     
     // Use ResizeObserver for immediate updates during sidebar animation
     const resizeObserver = new ResizeObserver(() => {
@@ -74,24 +76,25 @@ export function MasonryGrid({
   // Helper to get approximate height of an element
   const getElementHeight = (child: React.ReactNode): number => {
     if (React.isValidElement(child)) {
-      // This is a simplification - in a real scenario, you might need to
-      // measure actual rendered heights or use a more sophisticated heuristic
-      return Number(child.props.height || 100); // Fallback height
+      // Use a realistic height estimate for challenge cards to ensure proper spacing
+      // Challenge cards are typically around 400-450px tall depending on content
+      return Number(child.props.height || 450); // More accurate estimate for challenge cards
     }
-    return 100; // Default height if no height prop
+    return 450; // Default height that matches typical challenge card height
   };
 
   // Distribute children to columns to balance heights
   childrenArray.forEach((child) => {
     const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights));
     columnItems[shortestColumnIndex].push(child);
-    columnHeights[shortestColumnIndex] += getElementHeight(child) + gap;
+    // Remove gap from height calculation - let CSS handle spacing consistently
+    columnHeights[shortestColumnIndex] += getElementHeight(child);
   });
 
   return (
     <div
       ref={containerRef}
-      className={`flex justify-center ${className}`}
+      className={`w-full flex justify-center ${className}`}
       style={{ gap: `${gap}px` }}
     >
       {columnItems.map((column, columnIndex) => (
@@ -100,8 +103,8 @@ export function MasonryGrid({
           className="flex flex-col transition-all duration-200 ease-out"
           style={{ 
             gap: `${gap}px`, 
-            flex: `0 0 ${minColumnWidth}px`,
-            maxWidth: `${minColumnWidth}px`,
+            width: `${minColumnWidth}px`,
+            flexShrink: 0,
             transform: 'translateZ(0)' // Force hardware acceleration
           }}
         >

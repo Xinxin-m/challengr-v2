@@ -25,7 +25,9 @@ export const MOCK_CHALLENGES: Challenge[] = [
     location: {
       type: 'physical',
       details: 'Campus lecture halls'
-    }
+    },
+    thumbnail: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=400&h=300&fit=crop&crop=center',
+    creators: ['ComedyMaster', 'PrankGuru']
   },
   {
     id: 'epic-study-spot',
@@ -51,7 +53,9 @@ export const MOCK_CHALLENGES: Challenge[] = [
     location: {
       type: 'physical',
       details: 'Campus locations'
-    }
+    },
+    thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop&crop=center',
+    creators: ['StudyHacker', 'FocusExpert', 'ProductivityPro']
   },
   {
     id: 'mystery-snack-swap',
@@ -77,7 +81,9 @@ export const MOCK_CHALLENGES: Challenge[] = [
     location: {
       type: 'physical',
       details: 'Dorm rooms'
-    }
+    },
+    creators: ['FoodieExplorer'],
+    thumbnail: undefined
   },
   {
     id: 'dropout-prank-call',
@@ -286,6 +292,87 @@ export const MOCK_CHALLENGES: Challenge[] = [
       type: 'online',
       details: 'Social media platforms'
     }
+  },
+  {
+    id: 'urgent-coding-challenge',
+    title: 'Urgent Coding Challenge',
+    description: 'Build a simple web app in just 30 minutes! Race against time to create something amazing.',
+    type: 'solo',
+    difficulty: 'intermediate',
+    entryCost: 10,
+    rewards: { 
+      xp: 15, 
+      coins: 25, 
+      tokens: 8, 
+      equipment: [], 
+      achievements: ['speed-coder'] 
+    },
+    timeLimit: 30, // Very short time - will trigger wiggling
+    maxParticipants: 50,
+    participants: 23,
+    status: 'open',
+    createdAt: new Date('2025-01-29'),
+    category: 'coding',
+    tags: ['coding', 'speed', 'web-development', 'urgent'],
+    location: {
+      type: 'online',
+      details: 'Online coding environment'
+    },
+    thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=300&fit=crop&crop=center'
+  },
+  {
+    id: 'quick-fitness-blast',
+    title: 'Quick Fitness Blast',
+    description: 'Complete a 15-minute high-intensity workout and share your results. Perfect for busy schedules!',
+    type: 'solo',
+    difficulty: 'beginner',
+    entryCost: 0,
+    rewards: { 
+      xp: 8, 
+      coins: 12, 
+      tokens: 3, 
+      equipment: [], 
+      achievements: ['quick-fit'] 
+    },
+    timeLimit: 15, // Very short time - will trigger wiggling
+    maxParticipants: 200,
+    participants: 156,
+    status: 'open',
+    createdAt: new Date('2025-01-30'),
+    category: 'fitness',
+    tags: ['fitness', 'quick', 'workout', 'health'],
+    location: {
+      type: 'physical',
+      details: 'Any location'
+    },
+    thumbnail: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&crop=center'
+  },
+  {
+    id: 'flash-art-challenge',
+    title: 'Flash Art Challenge',
+    description: 'Create a masterpiece in just 20 minutes! Use any medium and show off your artistic skills.',
+    type: 'solo',
+    difficulty: 'intermediate',
+    entryCost: 5,
+    rewards: { 
+      xp: 12, 
+      coins: 18, 
+      tokens: 5, 
+      equipment: [], 
+      achievements: ['flash-artist'] 
+    },
+    timeLimit: 20, // Very short time - will trigger wiggling
+    maxParticipants: 100,
+    participants: 67,
+    status: 'open',
+    createdAt: new Date('2025-01-31'),
+    category: 'art',
+    tags: ['art', 'creative', 'speed', 'drawing'],
+    location: {
+      type: 'hybrid',
+      details: 'Any location with art supplies'
+    },
+    thumbnail: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=300&fit=crop&crop=center'
   }
 ];
 

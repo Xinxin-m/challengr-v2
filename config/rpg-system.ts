@@ -452,6 +452,8 @@ export interface Challenge {
     type: 'online' | 'physical' | 'hybrid';
     details?: string;
   };
+  thumbnail?: string;
+  creators?: string[];
 }
 
 // New betting challenge types

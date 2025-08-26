@@ -217,7 +217,7 @@ export function CareerProgressInterface({
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-accent/5 p-4">
+      <div className="min-h-screen bg-gradient-to-b from-purple-950 via-purple-900 to-orange-700 p-4 text-white">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Header */}
           <motion.div
@@ -225,8 +225,8 @@ export function CareerProgressInterface({
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <h1 className="text-4xl font-bold text-foreground mb-2">Career Progression</h1>
-            <p className="text-muted-foreground">Master your chosen profession and unlock new career paths</p>
+            <h1 className="text-4xl font-bold text-white mb-2">Career Progression</h1>
+            <p className="text-white/80">Master your chosen profession and unlock new career paths</p>
           </motion.div>
 
           {/* Current Status Overview */}
@@ -235,18 +235,17 @@ export function CareerProgressInterface({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="p-6 bg-gradient-to-r from-card via-muted/20 to-card border-border/50">
+            <Card className="p-6 bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
-                  <div className={`w-16 h-16 rounded-2xl ${currentProfession?.colorTheme?.gradient || 'bg-gradient-to-r from-gray-500 to-gray-600'} flex items-center justify-center text-3xl shadow-lg`}>
+                  <div className={`${currentProfession?.colorTheme?.gradient || 'bg-gradient-to-r from-gray-500 to-gray-600'} w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg`}>
                     {currentProfession?.icon || '🎓'}
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground">{currentProfession?.name || 'Unknown Class'}</h2>
-                    <p className="text-muted-foreground">{currentTier?.name || 'Apprentice'}</p>
+                    <h2 className="text-2xl font-bold text-white">{currentProfession?.name || 'Unknown Class'}</h2>
+                    <p className="text-white/80">{currentTier?.name || 'Apprentice'}</p>
                   </div>
                 </div>
-                
                 <div className="flex items-center space-x-4">
                   <Button
                     onClick={() => setShowJobChangeModal(true)}
@@ -262,26 +261,24 @@ export function CareerProgressInterface({
               {nextTier && (
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Progress to {nextTier.name}</span>
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="text-sm text-white/70">Progress to {nextTier.name}</span>
+                    <span className="text-sm font-medium text-white">
                       {userProgress.currentTierXP || 0} / {nextTier.requiredXP - (currentTier?.requiredXP || 0)} XP
                     </span>
                   </div>
-                  
                   <Progress value={Math.min(progressPercentage, 100)} className="h-3" />
-                  
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
                       <div className="text-xl font-bold text-theme-turquoise">{(userProgress.totalXP || 0).toLocaleString()}</div>
-                      <div className="text-xs text-muted-foreground">Total XP</div>
+                      <div className="text-xs text-white/70">Total XP</div>
                     </div>
                     <div>
                       <div className="text-xl font-bold text-theme-yellow">{userProgress.level || 1}</div>
-                      <div className="text-xs text-muted-foreground">Level</div>
+                      <div className="text-xs text-white/70">Level</div>
                     </div>
                     <div>
-                      <div className="text-xl font-bold text-purple-500">{currentTierIndex + 1}</div>
-                      <div className="text-xs text-muted-foreground">Current Tier</div>
+                      <div className="text-xl font-bold text-purple-300">{currentTierIndex + 1}</div>
+                      <div className="text-xs text-white/70">Current Tier</div>
                     </div>
                   </div>
                 </div>
@@ -291,7 +288,7 @@ export function CareerProgressInterface({
 
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 bg-card border border-border">
+            <TabsList className="grid w-full grid-cols-4 bg-white/10 border border-white/10 text-white">
               <TabsTrigger value="progress" className="data-[state=active]:bg-theme-yellow data-[state=active]:text-theme-black">
                 Career Path
               </TabsTrigger>
@@ -321,10 +318,10 @@ export function CareerProgressInterface({
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <Card className={`p-6 transition-all duration-300 ${
-                        isCompleted ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500/30' :
-                        isCurrent ? 'bg-gradient-to-r from-theme-yellow/20 to-theme-yellow-bright/20 border-theme-yellow/30' :
-                        'bg-card border-border opacity-60'
+                      <Card className={`p-6 transition-all duration-300 backdrop-blur-sm ${
+                        isCompleted ? 'bg-emerald-400/10 border-emerald-300/20' :
+                        isCurrent ? 'bg-yellow-400/10 border-yellow-300/20' :
+                        'bg-white/5 border-white/10'
                       }`}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
@@ -332,7 +329,7 @@ export function CareerProgressInterface({
                             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                               isCompleted ? 'bg-green-500 text-white' :
                               isCurrent ? 'bg-theme-yellow text-theme-black' :
-                              'bg-gray-300 text-gray-600'
+                              'bg-white/20 text-white'
                             }`}>
                               {isCompleted ? <CheckCircle className="w-6 h-6" /> :
                                isCurrent ? <Play className="w-6 h-6" /> :
@@ -340,10 +337,10 @@ export function CareerProgressInterface({
                             </div>
 
                             <div>
-                              <h3 className="text-lg font-semibold text-foreground">
+                              <h3 className="text-lg font-semibold text-white">
                                 {tier.name}
                               </h3>
-                              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                              <div className="flex items-center space-x-4 text-sm text-white/70">
                                 <span>Level {tier.level}</span>
                                 <span>•</span>
                                 <span>{tier.requiredXP.toLocaleString()} XP</span>
@@ -356,12 +353,12 @@ export function CareerProgressInterface({
                           <div className="flex items-center space-x-3">
                             {/* Rewards Preview */}
                             <div className="flex items-center space-x-2 text-sm">
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
                                 <Coins className="w-3 h-3 mr-1 text-theme-yellow" />
                                 {tier.rewards.coins}
                               </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                <Star className="w-3 h-3 mr-1 text-purple-500" />
+                              <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
+                                <Star className="w-3 h-3 mr-1 text-purple-300" />
                                 {tier.rewards.tokens}
                               </Badge>
                             </div>
@@ -371,6 +368,7 @@ export function CareerProgressInterface({
                               variant="ghost"
                               size="sm"
                               onClick={() => setExpandedTier(expandedTier === tier.id ? null : tier.id)}
+                              className="text-white hover:bg-white/10"
                             >
                               {expandedTier === tier.id ? 
                                 <ChevronDown className="w-4 h-4" /> : 
@@ -387,19 +385,19 @@ export function CareerProgressInterface({
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
                               exit={{ opacity: 0, height: 0 }}
-                              className="mt-6 pt-6 border-t border-border"
+                              className="mt-6 pt-6 border-t border-white/10"
                             >
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Skills */}
                                 {tier.rewards.skills && tier.rewards.skills.length > 0 && (
                                   <div>
                                     <h4 className="font-medium mb-3 flex items-center">
-                                      <Book className="w-4 h-4 mr-2 text-blue-500" />
+                                      <Book className="w-4 h-4 mr-2 text-blue-300" />
                                       Skills Unlocked
                                     </h4>
                                     <div className="flex flex-wrap gap-2">
                                       {tier.rewards.skills.map(skill => (
-                                        <Badge key={skill} variant="outline" className="text-xs">
+                                        <Badge key={skill} variant="outline" className="text-xs bg-white/10 text-white border-white/20">
                                           {skill}
                                         </Badge>
                                       ))}
@@ -411,12 +409,12 @@ export function CareerProgressInterface({
                                 {tier.rewards.badges && tier.rewards.badges.length > 0 && (
                                   <div>
                                     <h4 className="font-medium mb-3 flex items-center">
-                                      <Award className="w-4 h-4 mr-2 text-orange-500" />
+                                      <Award className="w-4 h-4 mr-2 text-orange-300" />
                                       Badges Earned
                                     </h4>
                                     <div className="flex flex-wrap gap-2">
                                       {tier.rewards.badges.map(badge => (
-                                        <Badge key={badge} variant="outline" className="text-xs">
+                                        <Badge key={badge} variant="outline" className="text-xs bg-white/10 text-white border-white/20">
                                           🏆 {badge}
                                         </Badge>
                                       ))}
@@ -437,7 +435,7 @@ export function CareerProgressInterface({
             {/* Stats Tab */}
             <TabsContent value="stats" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="p-6">
+                <Card className="p-6 bg-white/10 border-white/10 text-white">
                   <h3 className="text-lg font-semibold mb-4">Core Stats</h3>
                   <div className="space-y-4">
                     {Object.entries(userStats).map(([stat, value]) => (
@@ -452,7 +450,7 @@ export function CareerProgressInterface({
                   </div>
                 </Card>
 
-                <Card className="p-6">
+                <Card className="p-6 bg-white/10 border-white/10 text-white">
                   <h3 className="text-lg font-semibold mb-4">Progress Summary</h3>
                   <div className="space-y-4">
                     <div className="flex justify-between">
@@ -506,9 +504,9 @@ export function CareerProgressInterface({
             {/* Equipment Tab */}
             <TabsContent value="equipment" className="space-y-6">
               <div className="text-center py-12">
-                <Shield className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">Equipment System</h3>
-                <p className="text-muted-foreground">
+                <Shield className="w-16 h-16 text-white/70 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">Equipment System</h3>
+                <p className="text-white/80">
                   Equipment management coming soon. Earn powerful NFT gear through challenges!
                 </p>
               </div>
@@ -528,11 +526,11 @@ export function CareerProgressInterface({
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.9, opacity: 0 }}
-                  className="bg-card rounded-3xl p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto border border-border"
+                  className="bg-white/10 text-white rounded-3xl p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto border border-white/10"
                 >
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-bold text-foreground">Choose New Career Path</h3>
-                    <Button variant="ghost" onClick={() => setShowJobChangeModal(false)}>
+                    <h3 className="text-2xl font-bold">Choose New Career Path</h3>
+                    <Button variant="ghost" onClick={() => setShowJobChangeModal(false)} className="text-white hover:bg-white/10">
                       <X className="w-5 h-5" />
                     </Button>
                   </div>
@@ -551,39 +549,36 @@ export function CareerProgressInterface({
                           onClick={() => canChange && handleJobChange(profession.id)}
                           className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                             isCurrentProfession 
-                              ? 'border-theme-yellow bg-theme-yellow/20' 
+                              ? 'border-theme-yellow bg-theme-yellow/20 text-white' 
                               : canChange 
-                                ? 'border-border hover:border-theme-turquoise/50 bg-card'
-                                : 'border-border bg-muted opacity-50 cursor-not-allowed'
+                                ? 'border-white/20 hover:border-white/40 bg-white/10 text-white'
+                                : 'border-white/10 bg-white/5 opacity-50 cursor-not-allowed text-white/70'
                           }`}
                         >
                           <div className="flex items-center space-x-3 mb-3">
-                            <div className={`w-12 h-12 rounded-xl ${profession.colorTheme?.gradient || 'bg-gradient-to-r from-gray-500 to-gray-600'} flex items-center justify-center text-2xl shadow-lg`}>
+                            <div className={`${profession.colorTheme?.gradient || 'bg-gradient-to-r from-gray-500 to-gray-600'} w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg`}>
                               {profession.icon}
                             </div>
                             <div>
-                              <h4 className="font-semibold text-foreground">{profession.name}</h4>
-                              <p className="text-xs text-muted-foreground capitalize">{profession.category}</p>
+                              <h4 className="font-semibold">{profession.name}</h4>
+                              <p className="text-xs text-white/80 capitalize">{profession.category}</p>
                             </div>
                           </div>
-                          
-                          <p className="text-sm text-muted-foreground mb-3">{profession.description}</p>
-                          
+                          <p className="text-sm text-white/80 mb-3">{profession.description}</p>
                           <div className="flex items-center justify-between">
                             {isCurrentProfession ? (
                               <Badge className="bg-theme-yellow text-theme-black">Current</Badge>
                             ) : canChange ? (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
                                 <Coins className="w-3 h-3 mr-1" />
                                 {cost} coins
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
                                 <Lock className="w-3 h-3 mr-1" />
                                 Locked
                               </Badge>
                             )}
-                            
                             {canChange && !isCurrentProfession && (
                               <Button size="sm" className="bg-theme-turquoise text-theme-black hover:bg-theme-turquoise-light">
                                 Change Career

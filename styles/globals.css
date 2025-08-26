@@ -1,8 +1,11 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Merienda:wght@400;700&family=Moon+Dance&display=swap');
 @custom-variant dark (&:is(.dark *));
 
 :root {
   --font-size: 14px;
+  --font-title: 'Merienda', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-description: 'Moon Dance', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   
   /* AAA Theme Colors - Mystical Tech Palette */
   --theme-black: #0a0e17;
@@ -124,6 +127,11 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
   }
+
+  /* Ensure all H1 use the title font, regardless of Tailwind text- classes */
+  h1 {
+    font-family: var(--font-title);
+  }
 }
 
 /* Enhanced Typography */
@@ -134,6 +142,7 @@
       font-weight: 600;
       line-height: 1.2;
       letter-spacing: -0.025em;
+      font-family: var(--font-title);
     }
 
     h2 {

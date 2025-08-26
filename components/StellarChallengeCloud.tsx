@@ -42,12 +42,12 @@ function radialLayout(
 ) {
   const centerX = width / 2;
   const centerY = height / 2;
-  const radiusBase = Math.min(width, height) * 0.12; // inner cluster radius
-  const radiusJitter = Math.min(width, height) * 0.35; // spread
+  const radiusBase = Math.min(width, height) * 0.08; // reduced from 0.12 to bring cards closer
+  const radiusJitter = Math.min(width, height) * 0.25; // reduced from 0.35 to reduce spread
 
   return items.map((item, idx) => {
     // deterministic seed from id
-    const seed = Array.from(item.id).reduce((acc, c) => acc + c.charCodeAt(0), 0) + idx * 97;
+    const seed = Array.from(String(item.id || '')).reduce((acc: number, c: string) => acc + c.charCodeAt(0), 0) + idx * 97;
     const rand = (n: number) => {
       const x = Math.sin(seed + n) * 43758.5453;
       return x - Math.floor(x);

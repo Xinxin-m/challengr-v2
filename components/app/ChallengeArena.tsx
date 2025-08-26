@@ -6,7 +6,9 @@ import { StellarHub } from '../StellarHub';
 import { CareerProgressInterface } from '../CareerProgressInterface';
 import { RealisticEarthMap } from '../RealisticEarthMap';
 import { ChallengeModal } from '../ChallengeModal';
+import { BettingPage } from '../BettingPage';
 import { BettingArena } from '../BettingArena';
+import { MasonryGrid } from '../ui/masonry-grid';
 import { 
   Sword, Map, Trophy, Home, Filter, Search, Grid, List, 
   TrendingUp, Clock, Users, Star, Zap, Target, Crown, Coins
@@ -108,13 +110,15 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
 
   // Render Arena View with AAA Challenge Cards
   const renderArenaView = () => (
-    <div className="min-h-screen bg-page-gradient">
-      <div className="container mx-auto page-x pt-2 pb-8 space-y-6 px-4 md:px-6 lg:px-8">
+    <div className="h-full bg-gradient-to-br from-slate-800 via-blue-900 to-slate-900 overflow-hidden">
+      {/* Enhanced Header with Title Box */}
+      <div className="relative p-6">
+        <div className="max-w-6xl mx-auto">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 px-2 md:px-4"
+          className="mb-8"
         >
           <div className="relative bg-gradient-to-r from-slate-900/50 to-purple-900/50 backdrop-blur-xl border border-cyan-400/20 rounded-3xl p-8 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-purple-600/5" />
@@ -157,7 +161,7 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="flex flex-col lg:flex-row items-center gap-4 lg:justify-between mb-6 sm:mb-8 px-2 md:px-4"
+        className="flex flex-col lg:flex-row items-center gap-4 lg:justify-between mb-6 sm:mb-8"
       >
         <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full lg:w-auto">
           {/* Sort Controls */}
@@ -241,67 +245,65 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
         </div>
       </motion.div>
 
-      {/* Challenge Grid */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className={`w-full ${
-          viewMode === 'grid' 
-            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 justify-items-center px-2 md:px-4 lg:px-6' 
-            : 'flex flex-col gap-6 px-2 md:px-4 lg:px-6'
-        }`}
-      >
-        <AnimatePresence mode="popLayout">
-          {filteredChallenges.map((challenge, index) => (
-            <motion.div
-              key={challenge.id}
-              layout
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ 
-                delay: index * 0.05,
-                layout: { duration: 0.3 }
-              }}
-              className={`${
-                viewMode === 'grid' 
-                  ? 'w-full flex justify-center' 
-                  : 'w-full'
-              }`}
-              style={viewMode === 'grid' ? { width: '320px' } : {}}
-            >
-              <AAA_ChallengeCard
-                challenge={challenge}
-                userProgress={userProgress}
-                onAccept={onChallengeAccept}
-                onSave={onChallengeSave}
-                onViewDetails={handleChallengeInfo}
-                onCardClick={handleChallengeInfo}
-                variant={viewMode === 'list' ? 'featured' : 'default'}
-                showParticles={true}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+        </div>
+      </div>
 
-      {/* Load More Button */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="flex justify-center mt-12 px-2 md:px-4"
-      >
-        <Button
-          variant="outline"
-          size="lg"
-          className="px-8 py-4 text-lg font-bold bg-slate-800/50 border-2 border-cyan-400/30 text-cyan-400 hover:bg-cyan-500/10 hover:border-cyan-400 rounded-2xl transition-all duration-300"
-        >
-          <Zap className="w-5 h-5 mr-2" />
-          Load More Epic Challenges
-        </Button>
-      </motion.div>
+      {/* Main Content Area with Masonry Grid */}
+      <div className="flex-1 px-6 pb-8">
+        <div className="max-w-6xl mx-auto">
+          {viewMode === 'grid' ? (
+            <MasonryGrid minColumnWidth={280} gap={16} className="mb-8">
+              {filteredChallenges.map((challenge, index) => (
+                <motion.div
+                  key={challenge.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="w-full"
+                >
+                  <AAA_ChallengeCard
+                    challenge={challenge}
+                    userProgress={userProgress}
+                    onAccept={onChallengeAccept}
+                    onSave={onChallengeSave}
+                    onViewDetails={handleChallengeInfo}
+                    onCardClick={handleChallengeInfo}
+                    variant="default"
+                    showParticles={true}
+                    uniformSize={false}
+                    showThumbnail={true}
+                  />
+                </motion.div>
+              ))}
+            </MasonryGrid>
+          ) : (
+            <div className="flex flex-col gap-6">
+              {filteredChallenges.map((challenge, index) => (
+                <motion.div
+                  key={challenge.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="w-full"
+                >
+                  <AAA_ChallengeCard
+                    challenge={challenge}
+                    userProgress={userProgress}
+                    onAccept={onChallengeAccept}
+                    onSave={onChallengeSave}
+                    onViewDetails={handleChallengeInfo}
+                    onCardClick={handleChallengeInfo}
+                    variant="featured"
+                    showParticles={true}
+                    uniformSize={true}
+                    showThumbnail={true}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Challenge Modal */}
       {modalChallenge && (
@@ -314,7 +316,6 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
           thumbnail="/api/placeholder/600/300"
         />
       )}
-      </div>
     </div>
   );
 
@@ -386,21 +387,13 @@ export const ChallengeArena: React.FC<ChallengeArenaProps> = ({
               bettingCredits: userProgress.bettingCredits || 100,
               winStreak: userProgress.winStreak || 0
             }}
-            onTokenEarn={(amount, type) => {
-              if (type === 'gold') {
-                // Handle gold coin earning
-                console.log('Earned gold coins:', amount);
-              } else if (type === 'betting') {
-                // Handle betting credits
-                console.log('Betting credits updated:', amount);
-              }
-            }}
+            onTokenEarn={onTokenEarn}
             onBettingWin={() => {
-              // Handle betting win
+              // Handle betting win logic
               console.log('Betting win!');
             }}
             winStreak={userProgress.winStreak || 0}
-            membershipTier="free"
+            membershipTier={userProgress.membershipTier || 'free'}
           />
         </motion.div>
       );
