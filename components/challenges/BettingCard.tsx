@@ -7,7 +7,8 @@ import {
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Avatar } from '../ui/avatar';
-import { ChallengeSingle } from '../../types/rpg-system';
+import { ChallengeSingle } from '../../config/rpg-system';
+import { ShareModal } from '../ShareModal';
 
 interface BettingCardProps {
   challenge: ChallengeSingle;
@@ -15,7 +16,6 @@ interface BettingCardProps {
   onBetYes?: (id: string, amount: number) => void;
   onBetNo?: (id: string, amount: number) => void;
   onSave?: (id: string) => void;
-  onShare?: (id: string) => void;
   onCardClick?: (id: string) => void;
   variant?: 'default' | 'featured' | 'compact';
 }
@@ -26,12 +26,12 @@ export const BettingCard: React.FC<BettingCardProps> = ({
   onBetYes,
   onBetNo,
   onSave,
-  onShare,
   onCardClick,
   variant = 'default'
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   // Variant configurations
   const variantConfig = {
@@ -62,20 +62,39 @@ export const BettingCard: React.FC<BettingCardProps> = ({
     onSave?.(challenge.id);
   };
 
-
-
   // Helper function to format time left
   const formatTimeLeft = (endTime: Date) => {
-    const now = new Date();
-    const diff = endTime.getTime() - now.getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    
-    if (minutes < 60) return `${minutes}min`;
-    if (minutes < 1440) return `${Math.floor(minutes / 60)}H`;
-    return `${Math.floor(minutes / 1440)}D`;
+    // Using placeholder times instead of calculating real time
+    const placeholderTimes = [
+      '2h 15m',
+      '5h 30m',
+      '1d 3h',
+      '8h 45m',
+      '12h 20m',
+      '1d 7h'
+    ];
+    const randomIndex = Math.floor(Math.random() * placeholderTimes.length);
+    return placeholderTimes[randomIndex];
   };
 
+  // Generate random realistic numbers for betting stats
+  const generateBettingStats = () => {
+    // Generate random total bets between 10 and 300
+    const totalBets = Math.floor(Math.random() * 291) + 10; // 10 to 300
+    
+    // Generate random participants that's equal to or slightly more than total bets
+    const participants = Math.floor(Math.random() * 50) + totalBets; // totalBets to totalBets + 50
+    
+    // Ensure total pool is significantly larger than total bets
+    const totalPool = Math.floor(Math.random() * 5000) + totalBets * 10; // At least 10x total bets
+    
+    return { totalBets, participants, totalPool };
+  };
+
+  const bettingStats = generateBettingStats();
+
   return (
+    <>
     <motion.div
       className={`relative ${config.container} cursor-pointer`}
       onHoverStart={() => setIsHovered(true)}
@@ -116,15 +135,8 @@ export const BettingCard: React.FC<BettingCardProps> = ({
           
           {/* Header Section */}
           <div className="flex items-start justify-between mb-4">
-            {/* Type & Category Badges */}
+            {/* Category Badge */}
             <div className="flex items-center gap-2">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="flex items-center space-x-2 bg-cyan-500/20 px-3 py-1.5 rounded-xl border border-cyan-400/30 shadow-lg"
-              >
-                <Target className="w-4 h-4 text-cyan-300" />
-                <span className="text-sm font-bold text-cyan-300 capitalize">{challenge.type}</span>
-              </motion.div>
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 className="flex items-center space-x-2 bg-purple-500/20 px-3 py-1.5 rounded-xl border border-purple-400/30 shadow-lg"
@@ -152,7 +164,7 @@ export const BettingCard: React.FC<BettingCardProps> = ({
               <motion.button
                 whileHover={{ scale: 1.1, rotate: -5 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => onShare?.(challenge.id)}
+                onClick={(e) => { e.stopPropagation(); setIsShareOpen(true); }}
                 className="p-2 bg-white/10 rounded-xl text-white/60 hover:bg-white/20 hover:text-white transition-all duration-200"
               >
                 <Share2 className="w-4 h-4" />
@@ -170,32 +182,32 @@ export const BettingCard: React.FC<BettingCardProps> = ({
             </p>
           </div>
 
-          {/* Challenge Goal with Creator Profile */}
-          <div className="mb-4 p-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl border border-cyan-400/30">
-            {/* Creator Info */}
-            <div className="flex items-center space-x-3 mb-3 p-2 bg-white/5 rounded-lg">
-              <Avatar className="w-8 h-8 border-2 border-cyan-400/50">
-                <img
-                  src={challenge.creator.avatar}
-                  alt={challenge.creator.name}
-                  className="w-full h-full object-cover"
-                />
-              </Avatar>
-              <div className="flex-1">
-                <div className="font-medium text-white text-sm">{challenge.creator.name}</div>
-                <div className="text-xs text-white/60">Level {challenge.creator.level} • Creator</div>
+                      {/* Challenge Goal with Creator Profile */}
+            <div className="mb-4 p-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl border border-cyan-400/30">
+              {/* Creator Info */}
+              <div className="flex items-center space-x-3 mb-3 p-2 bg-white/5 rounded-lg">
+                <Avatar className="w-8 h-8 border-2 border-cyan-400/50">
+                  <img
+                    src={challenge.creator?.avatar || '/images/avatar-ai-creator.jpg'}
+                    alt={challenge.creator?.name || 'Creator'}
+                    className="w-full h-full object-cover"
+                  />
+                </Avatar>
+                <div className="flex-1">
+                  <div className="font-medium text-white text-sm">{challenge.creator?.name || 'Alex Chen'}</div>
+                  <div className="text-xs text-white/60">Level {challenge.creator?.level || 15} • Creator</div>
+                </div>
+              </div>
+              
+              {/* Challenge Goal */}
+              <div>
+                <h4 className="font-medium text-white mb-2 flex items-center">
+                  <Target className="w-4 h-4 mr-2 text-cyan-400" />
+                  Challenge Goal
+                </h4>
+                <p className="text-white/80 text-sm">{challenge.challenge?.goal || 'Complete the challenge successfully'}</p>
               </div>
             </div>
-            
-            {/* Challenge Goal */}
-            <div>
-              <h4 className="font-medium text-white mb-2 flex items-center">
-                <Target className="w-4 h-4 mr-2 text-cyan-400" />
-                Challenge Goal
-              </h4>
-              <p className="text-white/80 text-sm">{challenge.challenge.goal}</p>
-            </div>
-          </div>
 
           {/* Challenge Stats */}
           <div className="mb-4 grid grid-cols-3 gap-4">
@@ -203,7 +215,7 @@ export const BettingCard: React.FC<BettingCardProps> = ({
               <div className="flex items-center justify-center space-x-1 mb-1">
                 <Users className="w-4 h-4 text-cyan-400" />
                 <span className="text-lg font-bold text-white">
-                  {challenge.participants}
+                  {bettingStats.participants}
                 </span>
               </div>
               <p className="text-xs text-white/60">Participants</p>
@@ -212,7 +224,7 @@ export const BettingCard: React.FC<BettingCardProps> = ({
               <div className="flex items-center justify-center space-x-1 mb-1">
                 <Coins className="w-4 h-4 text-yellow-400" />
                 <span className="text-lg font-bold text-white">
-                  {challenge.betting.totalPool}
+                  {bettingStats.totalPool}
                 </span>
               </div>
               <p className="text-xs text-white/60">Total Pool</p>
@@ -221,7 +233,7 @@ export const BettingCard: React.FC<BettingCardProps> = ({
               <div className="flex items-center justify-center space-x-1 mb-1">
                 <TrendingUp className="w-4 h-4 text-emerald-400" />
                 <span className="text-lg font-bold text-white">
-                  {challenge.betting.yesBets + challenge.betting.noBets}
+                  {bettingStats.totalBets}
                 </span>
               </div>
               <p className="text-xs text-white/60">Total Bets</p>
@@ -229,33 +241,26 @@ export const BettingCard: React.FC<BettingCardProps> = ({
           </div>
 
           {/* Countdown Timer */}
-          <div className="mb-4 p-3 bg-red-500/20 border border-red-400/30 rounded-xl">
+          <div className="mb-4 p-2 bg-yellow-500/20 border border-yellow-400/30 rounded-xl">
             <div className="flex items-center justify-center space-x-2">
-              <Clock className="w-5 h-5 text-red-400" />
-              <span className="text-sm font-medium text-red-300">
-                {formatTimeLeft(challenge.betting.endTime)} left to place your bet!
+              <Clock className="w-4 h-4 text-yellow-400" />
+              <span className="text-sm font-medium text-yellow-300">
+                {formatTimeLeft(challenge.betting?.endTime || new Date())} left to place your bet!
               </span>
             </div>
           </div>
 
-          {/* Betting Odds */}
+          {/* Betting Buttons */}
           <div className="mb-4 grid grid-cols-2 gap-3">
             <div className="text-center p-3 bg-green-500/20 rounded-xl border border-green-400/30">
-              <div className="text-lg font-bold text-green-400">{challenge.betting.yesOdds}x</div>
-              <div className="text-xs text-green-300">Yes Odds</div>
-              <div className="text-xs text-white/60 mt-1">${challenge.betting.yesBets}</div>
+              <div className="text-2xl font-black text-green-400 mb-1">YES</div>
+              <div className="text-lg font-bold text-green-300">{challenge.betting?.yesOdds || 1.5}x</div>
             </div>
             <div className="text-center p-3 bg-red-500/20 rounded-xl border border-red-400/30">
-              <div className="text-lg font-bold text-red-400">{challenge.betting.noOdds}x</div>
-              <div className="text-xs text-red-300">No Odds</div>
-              <div className="text-xs text-white/60 mt-1">${challenge.betting.noBets}</div>
+              <div className="text-2xl font-black text-red-400 mb-1">NO</div>
+              <div className="text-lg font-bold text-red-300">{challenge.betting?.noOdds || 2.0}x</div>
             </div>
           </div>
-
-
-
-
-
 
         </div>
 
@@ -273,5 +278,20 @@ export const BettingCard: React.FC<BettingCardProps> = ({
         />
       </div>
     </motion.div>
+
+    {/* Share Modal */}
+    <ShareModal
+      isOpen={isShareOpen}
+      onClose={() => setIsShareOpen(false)}
+      challengeId={challenge.id}
+      challengeTitle={challenge.title}
+      challengeType="betting"
+      challengeData={{
+        category: challenge.category,
+        creator: challenge.creator.name,
+        action: challenge.challenge.goal
+      }}
+    />
+  </>
   );
 };

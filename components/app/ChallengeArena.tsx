@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { AAA_ChallengeCard } from '../challenges/AAA_ChallengeCard';
 import { HomeChallengeCloud } from '../StellarChallengeCloud';
 import { StellarHub } from '../StellarHub';
-import { CareerProgressInterface } from '../CareerProgressInterface';
+import { CareerProgressInterface } from '../PathOfAscension';
 import { RealisticEarthMap } from '../RealisticEarthMap';
 import { ChallengeModal } from '../ChallengeModal';
 import { BettingPage } from '../BettingPage';

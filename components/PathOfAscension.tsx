@@ -26,82 +26,143 @@ interface CareerProgressInterfaceProps {
   availableCoins: number;
 }
 
-// Mock tier data for demonstration
-const MOCK_TIERS = [
+// Mission data for user onboarding and progression
+const ONBOARDING_MISSIONS = [
   {
-    id: 'apprentice',
-    name: 'Apprentice',
+    id: 'first-challenge',
+    name: 'First Steps',
+    description: 'Complete your very first challenge',
+    type: 'onboarding',
     level: 1,
     requiredXP: 0,
-    requiredChallenges: 0,
+    progress: 100,
+    maxProgress: 100,
     rewards: {
-      coins: 100,
-      tokens: 10,
-      equipment: [],
-      skills: ['Basic Foundation', 'Problem Solving'],
-      badges: ['Beginner']
+      coins: 5,
+      xp: 10,
+      badges: ['Newcomer']
     },
-    completed: true
+    status: 'completed',
+    isLocked: false
   },
   {
-    id: 'journeyman',
-    name: 'Journeyman',
+    id: 'social-butterfly',
+    name: 'Social Butterfly',
+    description: 'Make 10 connections with other users',
+    type: 'social',
+    level: 1,
+    requiredXP: 10,
+    progress: 100,
+    maxProgress: 100,
+    rewards: {
+      coins: 5,
+      xp: 10,
+      badges: ['Social']
+    },
+    status: 'completed',
+    isLocked: false
+  },
+  {
+    id: 'creative-mind',
+    name: 'Creative Mind',
+    description: 'Create 5 challenges',
+    type: 'creation',
     level: 2,
-    requiredXP: 1000,
-    requiredChallenges: 25,
+    requiredXP: 25,
+    progress: 60,
+    maxProgress: 100,
     rewards: {
-      coins: 500,
-      tokens: 50,
-      equipment: [],
-      skills: ['Intermediate Skills', 'Applied Knowledge'],
-      badges: ['Practitioner']
+      coins: 10,
+      xp: 15,
+      badges: ['Creator']
     },
-    completed: true
+    status: 'active',
+    isLocked: false
   },
   {
-    id: 'expert',
-    name: 'Expert',
+    id: 'rising-influencer',
+    name: 'Rising Influencer',
+    description: 'Reach 1000 followers',
+    type: 'social',
     level: 3,
-    requiredXP: 5000,
-    requiredChallenges: 75,
+    requiredXP: 50,
+    progress: 25,
+    maxProgress: 100,
     rewards: {
-      coins: 1500,
-      tokens: 150,
-      equipment: [],
-      skills: ['Advanced Techniques', 'Strategic Thinking'],
-      badges: ['Expert', 'Mentor']
+      coins: 15,
+      xp: 20,
+      badges: ['Influencer']
     },
-    completed: false
+    status: 'active',
+    isLocked: false
   },
   {
-    id: 'grandmaster',
-    name: 'Grand Master',
+    id: 'mathematics-master',
+    name: 'Mathematics Master',
+    description: 'Complete 20 advanced mathematics challenges',
+    type: 'academic',
     level: 4,
-    requiredXP: 15000,
-    requiredChallenges: 150,
+    requiredXP: 100,
+    progress: 0,
+    maxProgress: 100,
     rewards: {
-      coins: 3000,
-      tokens: 300,
-      equipment: [],
-      skills: ['Master-level Expertise', 'Innovation'],
-      badges: ['Grand Master', 'Innovator']
+      coins: 20,
+      xp: 25,
+      badges: ['Math Expert']
     },
-    completed: false
+    status: 'locked',
+    isLocked: true
   },
   {
-    id: 'ascended',
-    name: 'Ascended',
-    level: 5,
-    requiredXP: 50000,
-    requiredChallenges: 300,
+    id: 'community-helper',
+    name: 'Community Helper',
+    description: 'Help 50 users with their challenges',
+    type: 'social',
+    level: 4,
+    requiredXP: 100,
+    progress: 0,
+    maxProgress: 100,
     rewards: {
-      coins: 10000,
-      tokens: 1000,
-      equipment: [],
-      skills: ['Transcendent Mastery', 'Universal Understanding'],
-      badges: ['Ascended Master', 'Legend']
+      coins: 20,
+      xp: 25,
+      badges: ['Helper']
     },
-    completed: false
+    status: 'locked',
+    isLocked: true
+  },
+  {
+    id: 'innovation-leader',
+    name: 'Innovation Leader',
+    description: 'Create 25 unique challenge types',
+    type: 'creation',
+    level: 5,
+    requiredXP: 200,
+    progress: 0,
+    maxProgress: 100,
+    rewards: {
+      coins: 25,
+      xp: 30,
+      badges: ['Innovator']
+    },
+    status: 'locked',
+    isLocked: true
+  },
+  {
+    id: 'global-connector',
+    name: 'Global Connector',
+    description: 'Connect with users from 10 different countries',
+    type: 'social',
+    level: 5,
+    requiredXP: 200,
+    progress: 0,
+    maxProgress: 100,
+    rewards: {
+      coins: 25,
+      xp: 30,
+      badges: ['Global']
+    },
+    status: 'locked',
+    isLocked: true
   }
 ];
 
@@ -144,9 +205,7 @@ export function CareerProgressInterface({
   onClaimReward,
   availableCoins
 }: CareerProgressInterfaceProps) {
-  const [selectedProfession, setSelectedProfession] = useState(userProgress.currentClass || 'mathematics');
   const [showJobChangeModal, setShowJobChangeModal] = useState(false);
-  const [expandedTier, setExpandedTier] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('progress');
 
   // Safe data access with fallbacks
@@ -164,25 +223,14 @@ export function CareerProgressInterface({
     business: 50
   };
   
-  // Calculate current tier progress
-  const getCurrentTierIndex = (tier: ProfessionTier) => {
-    switch (tier) {
-      case 'apprentice': return 0;
-      case 'journeyman': return 1;
-      case 'expert': return 2;
-      case 'grandmaster': return 3;
-      case 'ascended': return 4;
-      default: return 0;
-    }
-  };
-
-  const currentTierIndex = getCurrentTierIndex(userProgress.currentTier || 'apprentice');
-  const currentTier = MOCK_TIERS[currentTierIndex];
-  const nextTier = MOCK_TIERS[currentTierIndex + 1];
+  // Calculate mission progress statistics
+  const completedMissions = ONBOARDING_MISSIONS.filter(m => m.status === 'completed');
+  const activeMissions = ONBOARDING_MISSIONS.filter(m => m.status === 'active');
+  const lockedMissions = ONBOARDING_MISSIONS.filter(m => m.status === 'locked');
   
-  const progressPercentage = nextTier 
-    ? ((userProgress.currentTierXP || 0) / Math.max((nextTier.requiredXP - (currentTier?.requiredXP || 0)), 1)) * 100
-    : 100;
+  // Calculate overall progress percentage (should match sidebar: 2 completed out of 8 total = 25%)
+  const totalMissions = ONBOARDING_MISSIONS.length;
+  const overallProgressPercentage = (completedMissions.length / totalMissions) * 100;
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
@@ -225,8 +273,8 @@ export function CareerProgressInterface({
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <h1 className="text-4xl font-bold text-white mb-2">Career Progression</h1>
-            <p className="text-white/80">Master your chosen profession and unlock new career paths</p>
+            <h1 className="text-4xl font-bold text-white mb-2">Path of Ascension</h1>
+            <p className="text-white/80">Complete missions to progress and unlock new opportunities</p>
           </motion.div>
 
           {/* Current Status Overview */}
@@ -238,18 +286,22 @@ export function CareerProgressInterface({
             <Card className="p-6 bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
-                  <div className={`${currentProfession?.colorTheme?.gradient || 'bg-gradient-to-r from-gray-500 to-gray-600'} w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg`}>
-                    {currentProfession?.icon || '🎓'}
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg overflow-hidden">
+                    <img 
+                      src="/images/古风女孩头像.png" 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-white">{currentProfession?.name || 'Unknown Class'}</h2>
-                    <p className="text-white/80">{currentTier?.name || 'Apprentice'}</p>
+                    <h2 className="text-2xl font-bold text-white">Xxxin</h2>
+                    <p className="text-white">{userProgress.currentTitle || 'Legendary Challenger'}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
                   <Button
                     onClick={() => setShowJobChangeModal(true)}
-                    className="bg-theme-yellow text-theme-black hover:bg-theme-yellow-bright"
+                    className="bg-theme-yellow text-white hover:bg-theme-yellow-bright"
                   >
                     <RotateCcw className="w-4 h-4 mr-2" />
                     Job Change
@@ -257,174 +309,157 @@ export function CareerProgressInterface({
                 </div>
               </div>
 
-              {/* Progress to Next Tier */}
-              {nextTier && (
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-white/70">Progress to {nextTier.name}</span>
-                    <span className="text-sm font-medium text-white">
-                      {userProgress.currentTierXP || 0} / {nextTier.requiredXP - (currentTier?.requiredXP || 0)} XP
-                    </span>
+              {/* Mission Progress Overview */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-white/70">Overall Mission Progress</span>
+                  <span className="text-sm font-medium text-white">
+                    {Math.round(overallProgressPercentage)}%
+                  </span>
+                </div>
+                <Progress value={overallProgressPercentage} className="h-3" />
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-xl font-bold text-white">{completedMissions.length}</div>
+                    <div className="text-xs text-white/70">Completed</div>
                   </div>
-                  <Progress value={Math.min(progressPercentage, 100)} className="h-3" />
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="text-xl font-bold text-theme-turquoise">{(userProgress.totalXP || 0).toLocaleString()}</div>
-                      <div className="text-xs text-white/70">Total XP</div>
-                    </div>
-                    <div>
-                      <div className="text-xl font-bold text-theme-yellow">{userProgress.level || 1}</div>
-                      <div className="text-xs text-white/70">Level</div>
-                    </div>
-                    <div>
-                      <div className="text-xl font-bold text-purple-300">{currentTierIndex + 1}</div>
-                      <div className="text-xs text-white/70">Current Tier</div>
-                    </div>
+                  <div>
+                    <div className="text-xl font-bold text-white">{activeMissions.length}</div>
+                    <div className="text-xs text-white/70">Active</div>
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-white">{lockedMissions.length}</div>
+                    <div className="text-xs text-white/70">Locked</div>
                   </div>
                 </div>
-              )}
+              </div>
             </Card>
           </motion.div>
 
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-4 bg-white/10 border border-white/10 text-white">
-              <TabsTrigger value="progress" className="data-[state=active]:bg-theme-yellow data-[state=active]:text-theme-black">
-                Career Path
+              <TabsTrigger value="progress" className="text-white data-[state=active]:bg-theme-yellow data-[state=active]:text-theme-black">
+                Missions
               </TabsTrigger>
-              <TabsTrigger value="stats" className="data-[state=active]:bg-theme-yellow data-[state=active]:text-theme-black">
+              <TabsTrigger value="stats" className="text-white data-[state=active]:bg-theme-yellow data-[state=active]:text-theme-black">
                 Stats & Skills
               </TabsTrigger>
-              <TabsTrigger value="achievements" className="data-[state=active]:bg-theme-yellow data-[state=active]:text-theme-black">
+              <TabsTrigger value="achievements" className="text-white data-[state=active]:bg-theme-yellow data-[state=active]:text-theme-black">
                 Achievements
               </TabsTrigger>
-              <TabsTrigger value="equipment" className="data-[state=active]:bg-theme-yellow data-[state=active]:text-theme-black">
+              <TabsTrigger value="equipment" className="text-white data-[state=active]:bg-theme-yellow data-[state=active]:text-theme-black">
                 Equipment
               </TabsTrigger>
             </TabsList>
 
-            {/* Career Path Tab */}
+            {/* Missions Tab */}
             <TabsContent value="progress" className="space-y-6">
-              <div className="space-y-4">
-                {MOCK_TIERS.map((tier, index) => {
-                  const isCompleted = index <= currentTierIndex;
-                  const isCurrent = index === currentTierIndex;
-                  const isLocked = index > currentTierIndex;
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {ONBOARDING_MISSIONS.map((mission, index) => {
+                  const getMissionIcon = (status: string, type: string) => {
+                    if (status === 'completed') return <CheckCircle className="w-6 h-6" />;
+                    if (status === 'locked') return <Lock className="w-6 h-6" />;
+                    
+                    // Active missions get type-specific icons
+                    switch (type) {
+                      case 'onboarding': return <Target className="w-6 h-6" />;
+                      case 'social': return <Users className="w-6 h-6" />;
+                      case 'creation': return <Sparkles className="w-6 h-6" />;
+                      case 'academic': return <Brain className="w-6 h-6" />;
+                      default: return <Play className="w-6 h-6" />;
+                    }
+                  };
+
+                  const getMissionColor = (status: string) => {
+                    switch (status) {
+                      case 'completed': return 'bg-emerald-400/10 border-emerald-300/20';
+                      case 'active': return 'bg-yellow-400/10 border-yellow-300/20';
+                      case 'locked': return 'bg-gray-400/10 border-gray-300/20';
+                      default: return 'bg-white/5 border-white/10';
+                    }
+                  };
+
+                  const getIconBgColor = (status: string) => {
+                    switch (status) {
+                      case 'completed': return 'bg-green-500 text-white';
+                      case 'active': return 'bg-theme-yellow text-white';
+                      case 'locked': return 'bg-gray-500 text-white';
+                      default: return 'bg-white/20 text-white';
+                    }
+                  };
 
                   return (
                     <motion.div
-                      key={tier.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      key={mission.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <Card className={`p-6 transition-all duration-300 backdrop-blur-sm ${
-                        isCompleted ? 'bg-emerald-400/10 border-emerald-300/20' :
-                        isCurrent ? 'bg-yellow-400/10 border-yellow-300/20' :
-                        'bg-white/5 border-white/10'
+                      <Card className={`p-6 transition-all duration-300 backdrop-blur-sm ${getMissionColor(mission.status)} ${
+                        mission.isLocked ? 'opacity-60' : 'hover:scale-105'
                       }`}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            {/* Tier Icon */}
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                              isCompleted ? 'bg-green-500 text-white' :
-                              isCurrent ? 'bg-theme-yellow text-theme-black' :
-                              'bg-white/20 text-white'
-                            }`}>
-                              {isCompleted ? <CheckCircle className="w-6 h-6" /> :
-                               isCurrent ? <Play className="w-6 h-6" /> :
-                               <Lock className="w-6 h-6" />}
-                            </div>
-
-                            <div>
-                              <h3 className="text-lg font-semibold text-white">
-                                {tier.name}
-                              </h3>
-                              <div className="flex items-center space-x-4 text-sm text-white/70">
-                                <span>Level {tier.level}</span>
-                                <span>•</span>
-                                <span>{tier.requiredXP.toLocaleString()} XP</span>
-                                <span>•</span>
-                                <span>{tier.requiredChallenges} Challenges</span>
-                              </div>
-                            </div>
+                        <div className="flex items-start space-x-4">
+                          {/* Mission Icon */}
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${getIconBgColor(mission.status)}`}>
+                            {getMissionIcon(mission.status, mission.type)}
                           </div>
 
-                          <div className="flex items-center space-x-3">
-                            {/* Rewards Preview */}
-                            <div className="flex items-center space-x-2 text-sm">
-                              <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
-                                <Coins className="w-3 h-3 mr-1 text-theme-yellow" />
-                                {tier.rewards.coins}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
-                                <Star className="w-3 h-3 mr-1 text-purple-300" />
-                                {tier.rewards.tokens}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <h3 className="text-lg font-semibold text-white truncate">
+                                  {mission.name}
+                                </h3>
+                                <p className="text-sm text-white/70 mb-3">
+                                  {mission.description}
+                                </p>
+                              </div>
+                              <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20 ml-2">
+                                Level {mission.level}
                               </Badge>
                             </div>
 
-                            {/* Expand/Collapse */}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setExpandedTier(expandedTier === tier.id ? null : tier.id)}
-                              className="text-white hover:bg-white/10"
-                            >
-                              {expandedTier === tier.id ? 
-                                <ChevronDown className="w-4 h-4" /> : 
-                                <ChevronRight className="w-4 h-4" />
-                              }
-                            </Button>
+                            {/* Progress Bar - Only show for active missions */}
+                            {mission.status === 'active' && (
+                              <div className="mb-3">
+                                <div className="flex justify-between items-center mb-1">
+                                  <span className="text-xs text-white/70">Progress</span>
+                                  <span className="text-xs font-medium text-white">
+                                    {mission.progress}%
+                                  </span>
+                                </div>
+                                <Progress value={mission.progress} className="h-2" />
+                              </div>
+                            )}
+
+                            {/* Rewards */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
+                                  <Coins className="w-3 h-3 mr-1 text-white" />
+                                  {mission.rewards.coins}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
+                                  <Zap className="w-3 h-3 mr-1 text-white" />
+                                  {mission.rewards.xp} XP
+                                </Badge>
+                              </div>
+                              
+                              {mission.status === 'completed' && (
+                                <Badge className="bg-green-500 text-white text-xs">
+                                  Completed ✓
+                                </Badge>
+                              )}
+                              {mission.status === 'locked' && (
+                                <Badge className="bg-gray-500 text-white text-xs">
+                                  <Lock className="w-3 h-3 mr-1" />
+                                  Locked
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                         </div>
-
-                        {/* Expanded Details */}
-                        <AnimatePresence>
-                          {expandedTier === tier.id && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="mt-6 pt-6 border-t border-white/10"
-                            >
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Skills */}
-                                {tier.rewards.skills && tier.rewards.skills.length > 0 && (
-                                  <div>
-                                    <h4 className="font-medium mb-3 flex items-center">
-                                      <Book className="w-4 h-4 mr-2 text-blue-300" />
-                                      Skills Unlocked
-                                    </h4>
-                                    <div className="flex flex-wrap gap-2">
-                                      {tier.rewards.skills.map(skill => (
-                                        <Badge key={skill} variant="outline" className="text-xs bg-white/10 text-white border-white/20">
-                                          {skill}
-                                        </Badge>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Badges */}
-                                {tier.rewards.badges && tier.rewards.badges.length > 0 && (
-                                  <div>
-                                    <h4 className="font-medium mb-3 flex items-center">
-                                      <Award className="w-4 h-4 mr-2 text-orange-300" />
-                                      Badges Earned
-                                    </h4>
-                                    <div className="flex flex-wrap gap-2">
-                                      {tier.rewards.badges.map(badge => (
-                                        <Badge key={badge} variant="outline" className="text-xs bg-white/10 text-white border-white/20">
-                                          🏆 {badge}
-                                        </Badge>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
                       </Card>
                     </motion.div>
                   );
@@ -441,8 +476,8 @@ export function CareerProgressInterface({
                     {Object.entries(userStats).map(([stat, value]) => (
                       <div key={stat}>
                         <div className="flex justify-between items-center mb-2">
-                          <span className="capitalize text-sm">{stat.replace(/([A-Z])/g, ' $1').trim()}</span>
-                          <span className="text-sm font-medium">{value}/100</span>
+                          <span className="capitalize text-sm text-white">{stat.replace(/([A-Z])/g, ' $1').trim()}</span>
+                          <span className="text-sm font-medium text-white">{value}/100</span>
                         </div>
                         <Progress value={value} className="h-2" />
                       </div>
@@ -454,20 +489,20 @@ export function CareerProgressInterface({
                   <h3 className="text-lg font-semibold mb-4">Progress Summary</h3>
                   <div className="space-y-4">
                     <div className="flex justify-between">
-                      <span>Current Level</span>
-                      <span className="font-medium">{userProgress.level || 1}</span>
+                      <span className="text-white">Current Level</span>
+                      <span className="font-medium text-white">{userProgress.level || 1}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Total XP</span>
-                      <span className="font-medium">{(userProgress.totalXP || 0).toLocaleString()}</span>
+                      <span className="text-white">Total XP</span>
+                      <span className="font-medium text-white">{(userProgress.totalXP || 0).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Current Title</span>
-                      <span className="font-medium">{userProgress.currentTitle || 'Apprentice'}</span>
+                      <span className="text-white">Current Title</span>
+                      <span className="font-medium text-white">{userProgress.currentTitle || 'Explorer'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Unlocked Classes</span>
-                      <span className="font-medium">{(userProgress.unlockedClasses || []).length}</span>
+                      <span className="text-white">Unlocked Classes</span>
+                      <span className="font-medium text-white">{(userProgress.unlockedClasses || []).length}</span>
                     </div>
                   </div>
                 </Card>
@@ -560,14 +595,14 @@ export function CareerProgressInterface({
                               {profession.icon}
                             </div>
                             <div>
-                              <h4 className="font-semibold">{profession.name}</h4>
-                              <p className="text-xs text-white/80 capitalize">{profession.category}</p>
+                              <h4 className="font-semibold text-white">{profession.name}</h4>
+                              <p className="text-xs text-white capitalize">{profession.category}</p>
                             </div>
                           </div>
                           <p className="text-sm text-white/80 mb-3">{profession.description}</p>
                           <div className="flex items-center justify-between">
                             {isCurrentProfession ? (
-                              <Badge className="bg-theme-yellow text-theme-black">Current</Badge>
+                              <Badge className="bg-theme-yellow text-white">Current</Badge>
                             ) : canChange ? (
                               <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
                                 <Coins className="w-3 h-3 mr-1" />
@@ -580,7 +615,7 @@ export function CareerProgressInterface({
                               </Badge>
                             )}
                             {canChange && !isCurrentProfession && (
-                              <Button size="sm" className="bg-theme-turquoise text-theme-black hover:bg-theme-turquoise-light">
+                              <Button size="sm" className="bg-theme-turquoise text-white hover:bg-theme-turquoise-light">
                                 Change Career
                               </Button>
                             )}

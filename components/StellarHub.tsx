@@ -6,6 +6,8 @@ import { BattleCard } from './challenges/BattleCard';
 import { ProfileCard } from './ProfileCard';
 import { PostCard } from './PostCard';
 import { ChallengeModal } from './ChallengeModal';
+import { BettingChallengeModal } from './BettingChallengeModal';
+import { BattleModal } from './challenges/BattleModal';
 import { MOCK_CHALLENGES, MOCK_SINGLE_CHALLENGES, MOCK_DOUBLE_CHALLENGES } from '../data/mockChallenges';
 import { MOCK_POSTS } from '../data/mockPosts';
 import { MOCK_USERS } from '../data/mockUsers';
@@ -41,10 +43,14 @@ export const StellarHub: React.FC<StellarHubProps> = ({
   
   // Modal state management
   const [selectedChallenge, setSelectedChallenge] = useState<any>(null);
+  const [isBettingChallengeModalOpen, setIsBettingChallengeModalOpen] = useState(false);
+  const [selectedBettingChallenge, setSelectedBettingChallenge] = useState<any>(null);
+  const [isBattleModalOpen, setIsBattleModalOpen] = useState(false);
+  const [selectedBattleChallenge, setSelectedBattleChallenge] = useState<any>(null);
 
   // Filter challenges by category for different sections
   const allTrendingChallenges = useMemo(() => 
-    MOCK_CHALLENGES.filter(c => c.participants > 100), 
+    MOCK_CHALLENGES.filter(c => c.participants > 100 && c.id !== 'quick-fitness-blast'), 
     []
   );
   const trendingChallenges = useMemo(() => 
@@ -59,7 +65,7 @@ export const StellarHub: React.FC<StellarHubProps> = ({
     []
   );
   const newChallenges = useMemo(() => 
-    expandedSections.new ? allNewChallenges : allNewChallenges.slice(0, 4), 
+    expandedSections.new ? allNewChallenges : allNewChallenges.slice(0, 7), // Increased from 4 to 7 to show more challenges
     [expandedSections.new, allNewChallenges]
   );
 
@@ -146,16 +152,55 @@ export const StellarHub: React.FC<StellarHubProps> = ({
 
   // Modal handlers
   const handleChallengeClick = (challengeId: string) => {
-    const challenge = MOCK_CHALLENGES.find(c => c.id === challengeId) || 
-                     MOCK_SINGLE_CHALLENGES.find(c => c.id === challengeId) ||
-                     MOCK_DOUBLE_CHALLENGES.find(c => c.id === challengeId);
+    console.log('Challenge clicked:', challengeId);
+    // Resolve the clicked id across all mock sources
+    const doubleChallenge = MOCK_DOUBLE_CHALLENGES.find(c => c.id === challengeId);
+    const singleOrMulti = MOCK_CHALLENGES.find(c => c.id === challengeId);
+    const singleBet = MOCK_SINGLE_CHALLENGES.find(c => c.id === challengeId);
+
+    // Close any other modal state first to avoid overlapping presence and key warnings
+    setSelectedChallenge(null);
+    setSelectedBettingChallenge(null);
+    setSelectedBattleChallenge(null);
+    setIsBettingChallengeModalOpen(false);
+    setIsBattleModalOpen(false);
+
+    if (doubleChallenge) {
+      console.log('Opening battle modal for:', doubleChallenge.id);
+      setSelectedBattleChallenge(doubleChallenge);
+      setIsBattleModalOpen(true);
+      return;
+    }
+
+    if (singleBet) {
+      console.log('Opening betting challenge modal for:', singleBet.id);
+      setSelectedBettingChallenge(singleBet);
+      setIsBettingChallengeModalOpen(true);
+      return;
+    }
+
+    if (singleOrMulti) {
+      console.log('Opening regular challenge modal for:', singleOrMulti.id);
+      setSelectedChallenge(singleOrMulti);
+    } else {
+      console.warn('Challenge id not found in mocks:', challengeId);
+    }
+  };
+
+  const handleBettingChallengeClick = (challengeId: string) => {
+    const challenge = MOCK_SINGLE_CHALLENGES.find(c => c.id === challengeId);
     if (challenge) {
-      setSelectedChallenge(challenge);
+      setSelectedBettingChallenge(challenge);
+      setIsBettingChallengeModalOpen(true);
     }
   };
 
   const handleCloseModal = () => {
     setSelectedChallenge(null);
+    setSelectedBettingChallenge(null);
+    setSelectedBattleChallenge(null);
+    setIsBettingChallengeModalOpen(false);
+    setIsBattleModalOpen(false);
   };
 
   const handleJoinChallenge = (challengeId: string) => {
@@ -163,8 +208,12 @@ export const StellarHub: React.FC<StellarHubProps> = ({
     setSelectedChallenge(null);
   };
 
-  const renderForYouPanel = () => (
-    <div className="space-y-6">
+  const renderForYouPanel = () => {
+    console.log('Battle modal state:', { selectedBattleChallenge, isBattleModalOpen });
+    console.log('Regular challenge modal state:', { selectedChallenge });
+    
+    return (
+      <div className="space-y-6">
       {/* Trending Section */}
       <section>
         <motion.div 
@@ -380,8 +429,7 @@ export const StellarHub: React.FC<StellarHubProps> = ({
                     onBetYes={handleBetYes}
                     onBetNo={handleBetNo}
                     onSave={onChallengeSave}
-                    onShare={(id) => console.log('Share:', id)}
-                    onCardClick={handleChallengeClick}
+                    onCardClick={handleBettingChallengeClick}
                     variant="default"
                   />
                 </motion.div>
@@ -435,7 +483,6 @@ export const StellarHub: React.FC<StellarHubProps> = ({
                     onBetBlue={handleBetBlue}
                     onBetRed={handleBetRed}
                     onSave={onChallengeSave}
-                    onShare={(id) => console.log('Share:', id)}
                     onCardClick={handleChallengeClick}
                     variant="default"
                   />
@@ -558,6 +605,7 @@ export const StellarHub: React.FC<StellarHubProps> = ({
       </section>
     </div>
   );
+};
 
   const renderFollowingPanel = () => (
     <div className="space-y-6">
@@ -689,8 +737,9 @@ export const StellarHub: React.FC<StellarHubProps> = ({
       </div>
 
       {/* Challenge Modal */}
-      {selectedChallenge && (
+      {selectedChallenge && selectedChallenge.type !== 'double' && (
         <ChallengeModal
+          key={`regular-${selectedChallenge.id}`}
           challenge={selectedChallenge}
           isOpen={true}
           onClose={handleCloseModal}
@@ -701,6 +750,37 @@ export const StellarHub: React.FC<StellarHubProps> = ({
           }}
           thumbnail={selectedChallenge.thumbnail}
         />
+      )}
+
+      {/* Betting Challenge Modal */}
+      {selectedBettingChallenge && (
+        <BettingChallengeModal
+          key={`betting-${selectedBettingChallenge.id}`}
+          challenge={selectedBettingChallenge}
+          isOpen={isBettingChallengeModalOpen}
+          onClose={() => setIsBettingChallengeModalOpen(false)}
+          onBetYes={handleBetYes}
+          onBetNo={handleBetNo}
+          userProgress={userProgress}
+        />
+      )}
+
+      {/* Battle Modal */}
+      {selectedBattleChallenge && (
+        <div key={`battle-${selectedBattleChallenge.id}`}>
+          <BattleModal
+            challenge={selectedBattleChallenge}
+            isOpen={isBattleModalOpen}
+            onClose={() => {
+              console.log('Closing battle modal');
+              setIsBattleModalOpen(false);
+              setSelectedBattleChallenge(null);
+            }}
+            onBetBlue={handleBetBlue}
+            onBetRed={handleBetRed}
+            userProgress={userProgress}
+          />
+        </div>
       )}
     </div>
   );

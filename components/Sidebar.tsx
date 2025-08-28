@@ -48,6 +48,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
 
+  // Calculate mission progress based on user data
+  const calculateMissionProgress = () => {
+    // This should match the mission data from CareerProgressInterface
+    const totalMissions = 8;
+    const completedMissions = 2; // Based on the reference image showing 2 completed
+    return Math.round((completedMissions / totalMissions) * 100);
+  };
+
   const navigationItems = [
     {
       id: 'home',
@@ -348,16 +356,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   >
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-xl relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
-                        <span className="relative z-10">🧙‍♂️</span>
+                        <img 
+                          src="/images/古风女孩头像.png" 
+                          alt="Profile" 
+                          className="w-full h-full object-cover rounded-xl"
+                        />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
                           <h3 className="font-black text-white text-base">
-                            {userProgress.currentClass || 'Elemental Mage'}
+                            Xxxin
                           </h3>
                           <Badge className="bg-gradient-to-r from-blue-500/30 to-purple-500/30 text-blue-300 border-blue-400/50 text-xs">
-                            {userProgress.currentTier || 'Foundation'}
+                            {userProgress.currentTitle || 'Legendary Challenger'}
                           </Badge>
                         </div>
                         <p className="text-white/70 text-xs">Lv. {userProgress.level || '15'}</p>
@@ -367,14 +378,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <div className="space-y-2">
                       <div className="flex justify-between text-xs">
                         <span className="text-white/70">Progress</span>
-                        <span className="text-cyan-400 font-bold">{Math.round(calculateCultivationProgress())}%</span>
+                        <span className="text-cyan-400 font-bold">{calculateMissionProgress()}%</span>
                       </div>
                       <div className="relative">
-                        <Progress value={calculateCultivationProgress()} className="h-2 bg-slate-700/50" />
+                        <Progress value={calculateMissionProgress()} className="h-2 bg-slate-700/50" />
                         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full blur-sm" />
                       </div>
                       <div className="flex justify-between text-xs text-white/60">
-                        <span>{userProgress.currentTierXP?.toLocaleString() || '2,500'} / {(5000).toLocaleString()} XP</span>
+                        <span>2 / 8 Missions</span>
                       </div>
                     </div>
                   </motion.button>
@@ -382,12 +393,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div className="grid grid-cols-3 gap-2">
                     <div className="bg-gradient-to-br from-amber-500/20 to-yellow-500/20 backdrop-blur-sm border border-amber-400/40 rounded-lg p-2 text-center">
                       <Coins className="w-4 h-4 text-amber-400 mx-auto mb-1" />
-                      <div className="text-amber-400 font-bold text-xs">2500</div>
+                      <div className="text-amber-400 font-bold text-xs">{userProgress.dailyCoins || 2500}</div>
                       <div className="text-white/80 text-xs">coins</div>
                     </div>
                     <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-sm border border-cyan-400/40 rounded-lg p-2 text-center">
                       <Zap className="w-4 h-4 text-cyan-400 mx-auto mb-1" />
-                      <div className="text-amber-400 font-bold text-xs">12500</div>
+                      <div className="text-cyan-400 font-bold text-xs">{(userProgress.totalXP || 12500).toLocaleString()}</div>
                       <div className="text-white/80 text-xs">XP</div>
                     </div>
                     <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-sm border border-purple-400/40 rounded-lg p-2 text-center">

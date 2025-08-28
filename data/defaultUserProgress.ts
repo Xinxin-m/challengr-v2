@@ -7,6 +7,7 @@ export const DEFAULT_USER_PROGRESS: UserRPGProgress = {
   level: 15,
   totalXP: 12500,
   currentTierXP: 2500,
+  profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
   stats: {
     intelligence: 85,
     creativity: 60,

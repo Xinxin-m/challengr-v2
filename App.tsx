@@ -2,16 +2,19 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Target, Sparkles } from 'lucide-react';
 import { ThemeProvider, useTheme } from './components/ThemeProvider';
+import { NotificationProvider } from './contexts/NotificationContext';
 import { Sidebar } from './components/Sidebar';
 import { XuanhuanGameHeader } from './components/layout/XuanhuanGameHeader';
 import { XuanhuanMobileNavigation } from './components/layout/XuanhuanMobileNavigation';
 import { RPGCharacterProfile } from './components/RPGCharacterProfile';
 import { OnboardingGuide } from './components/OnboardingGuide';
+import { NotificationPanel } from './components/NotificationPanel';
 import { ParticleSystem, XPGainEffect, CoinCollectEffect, LevelUpEffect } from './components/effects/ParticleSystem';
 import { ChallengrAI } from './components/ChallengrAI';
 import { ChallengeArena } from './components/app/ChallengeArena';
 import { CreateChallengeModal } from './components/create/CreateChallengeModal';
 import { ModernCreatePostModal } from './components/CreatePostModal';
+import { WalletModal } from './components/WalletModal';
 import { useAppLogic } from './hooks/useAppLogic';
 import { useAppHandlers } from './hooks/useAppHandlers';
 import { AAA_THEMES } from './styles/themes';
@@ -73,9 +76,9 @@ function AppContent() {
             onCreateChallenge={() => appState.setShowCreateChallenge(true)}
             onCreatePost={() => appState.setShowCreatePost(true)}
             onOpenProfile={() => appState.setShowProfile(true)}
-            onOpenNotifications={() => console.log('📜 修真传音符箓')}
+            onOpenNotifications={() => appState.setShowNotifications(true)}
             onOpenAI={() => appState.setShowAI(true)}
-            onOpenWallet={() => console.log('💎 储物戒指')}
+            onOpenWallet={() => appState.setShowWallet(true)}
             isCollapsed={appState.sidebarCollapsed}
             onToggleCollapse={() => {
               console.log('🔄 侧边栏收缩状态切换:', !appState.sidebarCollapsed);
@@ -103,8 +106,8 @@ function AppContent() {
           console.log('🔄 侧边栏收缩状态切换:', !appState.sidebarCollapsed);
           appState.setSidebarCollapsed(!appState.sidebarCollapsed);
         }}
-        onOpenNotifications={() => console.log('📜 修真传音符箓')}
-        onOpenWallet={() => console.log('💎 储物戒指')}
+        onOpenNotifications={() => appState.setShowNotifications(true)}
+        onOpenWallet={() => appState.setShowWallet(true)}
         walletConnected={appState.walletConnected}
       />
 
@@ -153,6 +156,7 @@ function AppContent() {
       <AnimatePresence>
         {appState.showXPEffect && (
           <XPGainEffect 
+            key="xp-effect"
             trigger={appState.showXPEffect} 
             position={{ x: typeof window !== 'undefined' ? window.innerWidth / 2 : 400, y: typeof window !== 'undefined' ? window.innerHeight / 2 : 300 }}
           />
@@ -160,6 +164,7 @@ function AppContent() {
 
         {appState.showCoinEffect && (
           <CoinCollectEffect 
+            key="coin-effect"
             trigger={appState.showCoinEffect} 
             position={{ x: typeof window !== 'undefined' ? window.innerWidth / 2 : 400, y: typeof window !== 'undefined' ? window.innerHeight / 2 : 300 }}
           />
@@ -167,6 +172,7 @@ function AppContent() {
 
         {appState.showLevelUpEffect && (
           <LevelUpEffect 
+            key="levelup-effect"
             trigger={appState.showLevelUpEffect} 
             position={{ x: typeof window !== 'undefined' ? window.innerWidth / 2 : 400, y: typeof window !== 'undefined' ? window.innerHeight / 2 : 300 }}
           />
@@ -178,6 +184,7 @@ function AppContent() {
         {/* 修真引导 */}
         {appState.showOnboarding && (
           <OnboardingGuide
+            key="onboarding"
             isOpen={appState.showOnboarding}
             onComplete={handlers.handleOnboardingComplete}
             onSkip={handlers.handleOnboardingSkip}
@@ -188,6 +195,7 @@ function AppContent() {
         {/* 修真者档案 */}
         {appState.showProfile && (
           <RPGCharacterProfile
+            key="profile"
             userProgress={appState.userProgress}
             isOpen={appState.showProfile}
             onClose={() => appState.setShowProfile(false)}
@@ -203,6 +211,7 @@ function AppContent() {
         {appState.showAI && (
           <div className="onboarding-ai">
             <ChallengrAI
+              key="ai"
               userProgress={appState.userProgress}
               onChallengeGenerated={handlers.handleChallengeGenerated}
               onChallengeStart={handlers.handleChallengeStart}
@@ -216,6 +225,7 @@ function AppContent() {
 
         {/* Create Challenge Modal */}
         <CreateChallengeModal
+          key="create-challenge"
           isOpen={appState.showCreateChallenge}
           onClose={() => appState.setShowCreateChallenge(false)}
           onSubmit={(challengeData) => {
@@ -228,6 +238,7 @@ function AppContent() {
         {/* Create Post Modal */}
         {appState.showCreatePost && (
           <ModernCreatePostModal
+            key="create-post"
             isOpen={appState.showCreatePost}
             onClose={() => appState.setShowCreatePost(false)}
             onSubmit={(postData) => {
@@ -238,9 +249,26 @@ function AppContent() {
           />
         )}
 
+        {/* Notification Panel */}
+        <NotificationPanel
+          key="notifications"
+          isOpen={appState.showNotifications}
+          onClose={() => appState.setShowNotifications(false)}
+        />
+
+        {/* Wallet Modal */}
+        <WalletModal
+          key="wallet"
+          isOpen={appState.showWallet}
+          onClose={() => appState.setShowWallet(false)}
+          userProgress={appState.userProgress}
+          walletConnected={appState.walletConnected}
+        />
+
         {/* 修真欢迎模态 */}
         {appState.isFirstTime && !appState.showOnboarding && (
           <motion.div
+            key="welcome"
             initial={{ opacity: 0, scale: 0.8, x: 100 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.8, x: 100 }}
@@ -304,7 +332,9 @@ function AppContent() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <NotificationProvider>
+        <AppContent />
+      </NotificationProvider>
     </ThemeProvider>
   );
 }

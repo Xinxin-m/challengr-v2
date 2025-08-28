@@ -28,6 +28,8 @@ export function useAppLogic() {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [showAI, setShowAI] = useState(false);
   const [showGameSettings, setShowGameSettings] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showWallet, setShowWallet] = useState(false);
 
   // Search and filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -102,6 +104,8 @@ export function useAppLogic() {
     showCreatePost,
     showAI,
     showGameSettings,
+    showNotifications,
+    showWallet,
     searchQuery,
     showFilters,
     userProgress,
@@ -127,6 +131,8 @@ export function useAppLogic() {
     setShowCreatePost,
     setShowAI,
     setShowGameSettings,
+    setShowNotifications,
+    setShowWallet,
     setSearchQuery,
     setShowFilters,
     setUserProgress,

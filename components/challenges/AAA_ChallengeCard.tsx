@@ -28,7 +28,6 @@ interface AAA_ChallengeCardProps {
   userProgress: any;
   onAccept?: (id: string) => void;
   onSave?: (id: string) => void;
-  onShare?: (id: string) => void;
   onViewDetails?: (id: string) => void;
   onCardClick?: (id: string) => void;
   variant?: 'default' | 'featured' | 'compact' | 'hero';
@@ -42,13 +41,12 @@ export const AAA_ChallengeCard: React.FC<AAA_ChallengeCardProps> = ({
   userProgress = { dailyCoins: 100 },
   onAccept,
   onSave,
-  onShare,
   onViewDetails,
   onCardClick,
   variant = 'default',
   showParticles = true,
   uniformSize = true, // Default to uniform sizing
-  showThumbnail = true // Default to showing thumbnail
+  showThumbnail = true // Default to showing thumbnail image
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -382,6 +380,11 @@ export const AAA_ChallengeCard: React.FC<AAA_ChallengeCardProps> = ({
         onClose={() => setShowShareModal(false)}
         challengeId={safeChallenge.id}
         challengeTitle={safeChallenge.title}
+        challengeType="aaa"
+        challengeData={{
+          action: safeChallenge.description.split(' ').slice(0, 5).join(' ').toLowerCase() + '...',
+          category: safeChallenge.category
+        }}
       />
     </>
   );

@@ -345,7 +345,7 @@ export const MOCK_CHALLENGES: Challenge[] = [
       type: 'physical',
       details: 'Any location'
     },
-    thumbnail: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&crop=center'
+    thumbnail: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop'
   },
   {
     id: 'flash-art-challenge',
@@ -498,7 +498,7 @@ export const MOCK_DOUBLE_CHALLENGES: ChallengeDouble[] = [
         level: 16,
         description: 'Reigning mukbang champion with 15 wins',
         odds: 1.8,
-        totalBets: 2100
+        totalBets: 145
       },
       red: {
         id: 'red-1',
@@ -507,7 +507,7 @@ export const MOCK_DOUBLE_CHALLENGES: ChallengeDouble[] = [
         level: 14,
         description: 'Rising star with incredible eating speed',
         odds: 2.1,
-        totalBets: 1800
+        totalBets: 132
       }
     },
     challenge: {
@@ -518,13 +518,13 @@ export const MOCK_DOUBLE_CHALLENGES: ChallengeDouble[] = [
       rules: ['Must eat one bowl at a time', 'No outside help', 'Referee decision is final']
     },
     betting: {
-      totalPool: 3900,
+      totalPool: 277,
       minBet: 5,
       maxBet: 150,
       endTime: new Date('2025-02-18T19:00:00Z'),
       isLive: false
     },
-    totalParticipants: 890,
+    totalParticipants: 145,
     status: 'upcoming',
     createdAt: new Date('2025-01-23'),
     tags: ['mukbang', 'battle', 'food', 'competition'],
@@ -541,20 +541,20 @@ export const MOCK_DOUBLE_CHALLENGES: ChallengeDouble[] = [
       blue: {
         id: 'blue-2',
         name: 'SmashKing David',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
         level: 25,
         description: 'Former national champion with powerful smashes',
         odds: 1.5,
-        totalBets: 2800
+        totalBets: 89
       },
       red: {
         id: 'red-2',
         name: 'SpeedDemon Emma',
-        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
+        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
         level: 23,
         description: 'Lightning-fast player with incredible reflexes',
         odds: 2.4,
-        totalBets: 1500
+        totalBets: 76
       }
     },
     challenge: {
@@ -565,13 +565,13 @@ export const MOCK_DOUBLE_CHALLENGES: ChallengeDouble[] = [
       rules: ['21 points per game', '2-point lead required', 'Best of 5 matches']
     },
     betting: {
-      totalPool: 4300,
+      totalPool: 165,
       minBet: 10,
       maxBet: 300,
       endTime: new Date('2025-02-22T15:00:00Z'),
       isLive: false
     },
-    totalParticipants: 650,
+    totalParticipants: 89,
     status: 'upcoming',
     createdAt: new Date('2025-01-26'),
     tags: ['badminton', 'sports', 'championship', 'competition'],
@@ -588,20 +588,20 @@ export const MOCK_DOUBLE_CHALLENGES: ChallengeDouble[] = [
       blue: {
         id: 'blue-3',
         name: 'Grandmaster Chen',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
         level: 30,
         description: 'International Grandmaster with 2800+ rating',
         odds: 1.3,
-        totalBets: 3500
+        totalBets: 156
       },
       red: {
         id: 'red-3',
         name: 'TacticalGenius Maria',
-        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
+        avatar: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=100&h=100&fit=crop&crop=face',
         level: 28,
         description: 'Creative player known for unexpected tactics',
         odds: 3.2,
-        totalBets: 1200
+        totalBets: 134
       }
     },
     challenge: {
@@ -612,13 +612,13 @@ export const MOCK_DOUBLE_CHALLENGES: ChallengeDouble[] = [
       rules: ['Standard FIDE rules', '30 minutes per player', 'Best score wins']
     },
     betting: {
-      totalPool: 4700,
+      totalPool: 290,
       minBet: 15,
       maxBet: 500,
       endTime: new Date('2025-02-28T12:00:00Z'),
       isLive: false
     },
-    totalParticipants: 420,
+    totalParticipants: 156,
     status: 'upcoming',
     createdAt: new Date('2025-01-28'),
     tags: ['chess', 'strategy', 'grandmaster', 'intellectual'],

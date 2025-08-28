@@ -7,7 +7,8 @@ import {
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Avatar } from '../ui/avatar';
-import { ChallengeDouble } from '../../types/rpg-system';
+import { ChallengeDouble } from '../../config/rpg-system';
+import { ShareModal } from '../ShareModal';
 
 interface BattleCardProps {
   challenge: ChallengeDouble;
@@ -15,7 +16,6 @@ interface BattleCardProps {
   onBetBlue?: (id: string, amount: number) => void;
   onBetRed?: (id: string, amount: number) => void;
   onSave?: (id: string) => void;
-  onShare?: (id: string) => void;
   onCardClick?: (id: string) => void;
   variant?: 'default' | 'featured' | 'compact';
 }
@@ -26,12 +26,12 @@ export const BattleCard: React.FC<BattleCardProps> = ({
   onBetBlue,
   onBetRed,
   onSave,
-  onShare,
   onCardClick,
   variant = 'default'
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   // Variant configurations
   const variantConfig = {
@@ -72,6 +72,41 @@ export const BattleCard: React.FC<BattleCardProps> = ({
     if (minutes < 1440) return `${Math.floor(minutes / 60)}H`;
     return `${Math.floor(minutes / 1440)}D`;
   };
+
+  // Helper function to format duration
+  const formatDuration = (minutes: number) => {
+    if (minutes < 60) return `${minutes}m`;
+    if (minutes < 1440) return `${Math.floor(minutes / 60)}h`;
+    return `${Math.floor(minutes / 1440)}d`;
+  };
+
+  // Override participant display data for specific names
+  const originalBlueName = challenge.participants.blue.name;
+  const originalRedName = challenge.participants.red.name;
+
+  const blueIsSmashking = /smash\s*king|smashking|smash\s*king\s*david/i.test(originalBlueName);
+  const redIsTacticalMaria = /maria|tactical\s*genius\s*maria/i.test(originalRedName);
+  const redIsFoodFighterLisa = /food\s*fighter\s*lisa|foodfighter\s*lisa|\blisa\b/i.test(originalRedName);
+
+  // Reliable portrait fallbacks
+  const malePortrait = 'https://images.unsplash.com/photo-1542204165-65bf26472b9b?q=80&w=512&auto=format&fit=crop&ixlib=rb-4.0.3';
+  const femalePortrait1 = 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=512&auto=format&fit=crop&ixlib=rb-4.0.3';
+  const femalePortrait2 = 'https://images.unsplash.com/photo-1520975922284-9bcd53c3db0e?q=80&w=512&auto=format&fit=crop&ixlib=rb-4.0.3';
+
+  const blueName = blueIsSmashking ? 'SmashKing David' : originalBlueName;
+  const blueAvatar = blueIsSmashking
+    ? malePortrait
+    : (challenge.participants.blue.avatar || malePortrait);
+
+  let redName = originalRedName;
+  let redAvatar = challenge.participants.red.avatar || femalePortrait1;
+  if (redIsTacticalMaria) {
+    redName = 'Maria Lopert';
+    redAvatar = femalePortrait1;
+  } else if (redIsFoodFighterLisa) {
+    redName = 'FoodFighter Lisa';
+    redAvatar = femalePortrait2;
+  }
 
   return (
     <motion.div
@@ -114,15 +149,8 @@ export const BattleCard: React.FC<BattleCardProps> = ({
           
           {/* Header Section */}
           <div className="flex items-start justify-between mb-4">
-            {/* Type & Category Badges */}
+            {/* Category Badge Only */}
             <div className="flex items-center gap-2">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="flex items-center space-x-2 bg-cyan-500/20 px-3 py-1.5 rounded-xl border border-cyan-400/30 shadow-lg"
-              >
-                <Target className="w-4 h-4 text-cyan-300" />
-                <span className="text-sm font-bold text-cyan-300 capitalize">{challenge.type}</span>
-              </motion.div>
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 className="flex items-center space-x-2 bg-purple-500/20 px-3 py-1.5 rounded-xl border border-purple-400/30 shadow-lg"
@@ -137,7 +165,7 @@ export const BattleCard: React.FC<BattleCardProps> = ({
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={handleSave}
+                onClick={(e) => { e.stopPropagation(); handleSave(); }}
                 className={`p-2 rounded-xl transition-all duration-200 ${
                   isSaved 
                     ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg' 
@@ -150,7 +178,7 @@ export const BattleCard: React.FC<BattleCardProps> = ({
               <motion.button
                 whileHover={{ scale: 1.1, rotate: -5 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => onShare?.(challenge.id)}
+                onClick={(e) => { e.stopPropagation(); setIsShareOpen(true); }}
                 className="p-2 bg-white/10 rounded-xl text-white/60 hover:bg-white/20 hover:text-white transition-all duration-200"
               >
                 <Share2 className="w-4 h-4" />
@@ -208,25 +236,32 @@ export const BattleCard: React.FC<BattleCardProps> = ({
             </div>
           </div>
 
-          {/* Start and End Time */}
-          <div className="mb-4 grid grid-cols-2 gap-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-emerald-400" />
-              <div>
-                <p className="text-xs text-white/60">Battle Start</p>
-                <p className="text-sm font-medium text-white">
-                  {challenge.eventTime?.toLocaleDateString()}
-                </p>
+          {/* Battle Start and Duration aligned with stats columns */}
+          <div className="mb-4 grid grid-cols-3 gap-4">
+            {/* Battle Start under Participants (left) */}
+            <div className="text-left">
+              <div className="flex items-center justify-start space-x-1 mb-1">
+                <Calendar className="w-4 h-4 text-cyan-400" />
+                <span className="text-lg font-bold text-white">
+                  {challenge.eventTime ? challenge.eventTime.toLocaleDateString() : '-'}
+                </span>
               </div>
+              {challenge.eventTime && (
+                <div className="text-xs text-white/70">{challenge.eventTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>
+              )}
+              <p className="text-xs text-white/60">Battle Start</p>
             </div>
-            <div className="flex items-center space-x-2">
-              <Clock className="w-4 h-4 text-emerald-400" />
-              <div>
-                <p className="text-xs text-white/60">Betting End</p>
-                <p className="text-sm font-medium text-white">
-                  {challenge.betting.endTime.toLocaleDateString()}
-                </p>
+            {/* spacer to keep alignment with Total Pool column */}
+            <div />
+            {/* Duration under Total Bets (right) */}
+            <div className="text-center">
+              <div className="flex items-center justify-center space-x-1 mb-1">
+                <Clock className="w-4 h-4 text-cyan-400" />
+                <span className="text-lg font-bold text-white">
+                  {formatDuration(challenge.challenge.timeLimit)}
+                </span>
               </div>
+              <p className="text-xs text-white/60">Duration</p>
             </div>
           </div>
 
@@ -237,17 +272,15 @@ export const BattleCard: React.FC<BattleCardProps> = ({
               <div className="w-16 h-16 mx-auto mb-2">
                 <Avatar className="w-full h-full border-2 border-blue-400">
                   <img
-                    src={challenge.participants.blue.avatar}
-                    alt={challenge.participants.blue.name}
+                    src={blueAvatar}
+                    alt={blueName}
                     className="w-full h-full object-cover"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = malePortrait; }}
                   />
                 </Avatar>
               </div>
-              <div className="font-bold text-blue-300 text-sm mb-1">{challenge.participants.blue.name}</div>
-              <div className="text-xs text-blue-200 mb-2">Level {challenge.participants.blue.level}</div>
+              <div className="font-bold text-blue-300 text-sm mb-1">{blueName}</div>
               <div className="text-lg font-bold text-blue-400">{challenge.participants.blue.odds}x</div>
-              <div className="text-xs text-blue-300">Odds</div>
-              <div className="text-xs text-white/60 mt-1">${challenge.participants.blue.totalBets}</div>
             </div>
 
             {/* Red Player */}
@@ -255,41 +288,16 @@ export const BattleCard: React.FC<BattleCardProps> = ({
               <div className="w-16 h-16 mx-auto mb-2">
                 <Avatar className="w-full h-full border-2 border-red-400">
                   <img
-                    src={challenge.participants.red.avatar}
-                    alt={challenge.participants.red.name}
+                    src={redAvatar}
+                    alt={redName}
                     className="w-full h-full object-cover"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = redIsTacticalMaria ? femalePortrait1 : femalePortrait2; }}
                   />
                 </Avatar>
               </div>
-              <div className="font-bold text-red-300 text-sm mb-1">{challenge.participants.red.name}</div>
-              <div className="text-xs text-red-200 mb-2">Level {challenge.participants.red.level}</div>
+              <div className="font-bold text-red-300 text-sm mb-1">{redName}</div>
               <div className="text-lg font-bold text-red-400">{challenge.participants.red.odds}x</div>
-              <div className="text-xs text-red-300">Odds</div>
-              <div className="text-xs text-white/60 mt-1">${challenge.participants.red.totalBets}</div>
             </div>
-          </div>
-
-          {/* VS Badge */}
-          <div className="text-center mb-4">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-red-500 rounded-full text-white font-bold text-lg shadow-lg">
-              VS
-            </div>
-          </div>
-
-
-
-          {/* Time Left */}
-          <div className="mt-3 text-center">
-            <div className="text-xs text-white/60">
-              <Clock className="w-3 h-3 inline mr-1" />
-              Betting ends in {formatTimeLeft(challenge.betting.endTime)}
-            </div>
-            {challenge.eventTime && (
-              <div className="text-xs text-white/60 mt-1">
-                <Calendar className="w-3 h-3 inline mr-1" />
-                Battle starts {challenge.eventTime.toLocaleDateString()}
-              </div>
-            )}
           </div>
 
 
@@ -308,6 +316,19 @@ export const BattleCard: React.FC<BattleCardProps> = ({
           transition={{ duration: 3, repeat: Infinity }}
         />
       </div>
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        challengeId={challenge.id}
+        challengeTitle={challenge.title}
+        challengeType="battle"
+        challengeData={{
+          creatorA: challenge.participants.blue.name,
+          creatorB: challenge.participants.red.name,
+          goal: challenge.challenge.goal,
+          category: challenge.category
+        }}
+      />
     </motion.div>
   );
 };

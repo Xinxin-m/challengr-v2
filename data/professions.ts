@@ -5,8 +5,8 @@ export const PROFESSIONS: RPGClass[] = [
   // Academic Classes
   {
     id: 'mathematics',
-    name: 'Mathematics',
-    displayName: 'Mathematician',
+    name: 'Xxxin',
+    displayName: 'Xxxin',
     category: 'academic',
     icon: '🔢',
     description: 'Master the language of the universe through numbers and logic',

@@ -496,7 +496,7 @@ export interface ChallengeDouble {
   id: string;
   title: string;
   description: string;
-  type: 'double';
+  type: 'battle';
   category: string;
   participants: {
     blue: {
